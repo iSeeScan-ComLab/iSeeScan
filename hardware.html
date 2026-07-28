@@ -327,12 +327,12 @@ h1{
         }
 
         .navbar-actions {
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-            position:relative;
-            right:40px;
-            margin-right: 0px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-right: 0;
+    position: relative;
+    z-index: 999;
         }
 
         .navbar-account-btn {
@@ -513,16 +513,22 @@ h1{
             .navbar-spacer { height: 66px; }
             .top-navbar { height: 66px; padding: 0 16px; }
             .navbar-links { display: none; }
-            .navbar-actions { display: none; }
+            .navbar-actions { display:none !important; }
             .navbar-title { display: none; }
 
-            .menu-btn {
-                top: 21px;
-                right: 18px;
-                opacity: 0;
-                transform: scale(0.85);
-                pointer-events: none;
+            .menu-btn{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:1005;
             }
+
+            .menu-btn{
+    display:flex !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+            }
+            
             .menu-btn.show-on-scroll {
                 opacity: 1;
                 transform: scale(1);
