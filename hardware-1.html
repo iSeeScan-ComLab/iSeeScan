@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Hardware Problems - iSeeScan</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* --- Fix: Stretches the repository image across the viewport --- */
+.background-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+}
+
+/* --- Fix: Highly darkened overlay so the motherboard blends in like the main page --- */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(3, 7, 18, 0.97) 20%, rgba(6, 11, 25, 0.92) 100%);
+    z-index: -1;
+}
+
+.separator{
+    height:2px;
+    background:linear-gradient(to right, transparent, #00eaff, transparent);
+    margin:15px 0;
+    border-radius:5px;
+}
+.content-wrapper{
+    position: relative;
+    z-index: 1;
+    width: min(95%, 1000px);
+    margin: auto;
+}
+
+.back-container{
+    max-width:1000px;
+    margin:30px auto;
+    text-align:center;
+    position: relative;
+    z-index: 1;
+}
+
+.backBtn{
+    display:block;
+    width:100%;
+    text-align:center;
+    padding:14px;
+    background:#00eaff;
+    color:#111827;
+    text-decoration:none;
+    border-radius:15px;
+    font-weight:bold;
+    box-sizing:border-box;
+    transition:.3s;
+}
+
+.backBtn:hover{
+    background:#ffffff;
+    transform:translateY(-2px);
+}
+
+
+#searchBar{
+    width:100%;
+    padding:15px 20px;
+    margin:25px 0;
+    border:none;
+    border-radius:30px;
+    outline:none;
+    font-size:17px;
+    background:#1f2937;
+    color:white;
+    box-sizing:border-box;
+    box-shadow:0 0 20px rgba(0,234,255,.35);
+    transition:.3s;
+}
+
+#searchBar:focus{
+    box-shadow:0 0 25px cyan;
+    transform:scale(1.02);
+}
+
+
+#searchBar::placeholder{
+
+    color:#aaa;
+
+}
+
+body{
+    margin:0;
+    padding:30px;
+    font-family:'Poppins',sans-serif;
+    color:white;
+}
+
+h1{
+    position: relative;
+    z-index: 1;
+    color:#00eaff;
+    text-align:center;
+}
+
+.problem{
+    background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(0, 234, 255, .02));
+
+    backdrop-filter:blur(15px);
+
+    border:1px solid rgba(0,234,255,.25);
+
+    padding:22px;
+
+    margin:18px auto;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    transition:.35s;
+
+    max-width:1000px;
+}
+
+
+.problem:hover{
+    transform:translateY(-6px);
+    background: rgba(36, 59, 85, 0.4);
+    box-shadow:0 15px 35px rgba(0, 234, 255,.25);
+}
+
+
+
+.solution{
+    display:none;
+    margin-top:18px;
+    padding:22px;
+    background:#0b1220;
+    border-left:6px solid cyan;
+    border-radius:18px;
+    animation:slideDown .35s;
+}
+
+
+
+.tutorial{
+    line-height:2;
+    color:#d6eaff;
+    font-size:15px;
+}
+
+
+
+@keyframes slideDown{
+
+from{
+
+opacity:0;
+
+transform:translateY(-15px);
+
+}
+
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+a{
+
+    color:#00eaff;
+    text-decoration:none;
+
+}
+
+@media(max-width:768px){
+
+body{
+    padding:18px;
+}
+
+h1{
+    font-size:32px;
+}
+
+#searchBar{
+    width:100%;
+    font-size:16px;
+    padding:13px;
+}
+
+.problem{
+    padding:18px;
+}
+
+.solution{
+    padding:18px;
+}
+
+.tutorial{
+    font-size:14px;
+}
+
+.backBtn{
+    width:100%;
+}
+
+}
+
+@media(min-width:1200px){
+
+.problem{
+    max-width:1100px;
+}
+
+#searchBar{
+    max-width:700px;
+}
+
+}
+
+
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { font-size: 24px; }
+        }
+    </style>
+
+</head>
+
+
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="navbar-logo-emoji">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link active">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <a href="main.html" class="navbar-account-btn" title="Go to Home / Sign in">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item active">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+</div>
+
+<div class="navbar-spacer"></div>
+
+
+<!-- Fix: Pulls the repository file dynamically into the HTML layout -->
+<img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+<h1>Hardware Problems</h1>
+
+<div class="content-wrapper">
+
+<div class="back-container">
+    <a href="main.html" class="backBtn">← Back to Categories</a>
+</div>
+
+<input
+type="text"
+id="searchBar"
+placeholder="🔍 Search hardware problem..."
+onkeyup="searchProblem()">
+
+<div id="content"></div>
+
+<div class="back-container">
+    <a href="main.html" class="backBtn">← Back to Categories</a>
+</div>
+
+</div>
+
+<script>
+
+
+let hardwareProblems = [
+
+[
+"Computer does not turn on",
+"Check power cable, outlet, and power supply.",
+"Step 1: Check if the power cable is connected properly.\nStep 2: Test the power outlet using another device.\nStep 3: Check if the power supply switch is turned on.\nStep 4: Press the power button again.\nStep 5: Check the power supply if the computer still does not start."
+],
+
+
+[
+"Keyboard not working",
+"Reconnect the keyboard or replace damaged cables.",
+"Step 1: Disconnect the keyboard from the USB port.\nStep 2: Connect it to another USB port.\nStep 3: Restart the computer.\nStep 4: Check if the keyboard driver is working.\nStep 5: Replace the keyboard if it is damaged."
+],
+
+
+[
+"Mouse not detected",
+"Reconnect USB connection or update drivers.",
+"Step 1: Remove the mouse USB cable.\nStep 2: Connect the mouse to another USB port.\nStep 3: Restart the computer.\nStep 4: Check mouse drivers.\nStep 5: Update or reinstall the driver."
+],
+
+
+[
+"Monitor has no display",
+"Check monitor power and display cables.",
+"Step 1: Check if the monitor is powered on.\nStep 2: Check HDMI or VGA cable connection.\nStep 3: Make sure the correct input source is selected.\nStep 4: Try another display cable.\nStep 5: Restart the computer."
+],
+
+
+[
+"Computer overheating",
+"Clean dust and improve ventilation.",
+"Step 1: Turn off the computer.\nStep 2: Clean dust from fans and vents.\nStep 3: Check if cooling fans are working.\nStep 4: Improve airflow around the computer.\nStep 5: Avoid blocking ventilation areas."
+],
+
+
+[
+"Hard drive failure",
+"Replace damaged storage device.",
+"Step 1: Check if the hard drive is detected.\nStep 2: Run a disk health check.\nStep 3: Backup important files if possible.\nStep 4: Replace the damaged hard drive.\nStep 5: Install the operating system again."
+],
+
+
+[
+"RAM not detected",
+"Reseat RAM or replace faulty memory.",
+"Step 1: Turn off and unplug the computer.\nStep 2: Open the computer case.\nStep 3: Remove and reinstall the RAM properly.\nStep 4: Test the RAM sticks one by one.\nStep 5: Replace faulty RAM if needed."
+],
+
+
+[
+"No sound from computer",
+"Check speakers and audio connections.",
+"Step 1: Check speaker connection.\nStep 2: Check computer volume settings.\nStep 3: Select the correct audio output.\nStep 4: Update audio drivers.\nStep 5: Test another speaker or headset."
+],
+
+
+[
+"USB ports not working",
+"Check drivers or test another USB port.",
+"Step 1: Test another USB device.\nStep 2: Restart the computer.\nStep 3: Check USB drivers.\nStep 4: Update USB drivers.\nStep 5: Check for physical port damage."
+],
+
+
+[
+"Printer not printing",
+"Check ink, paper, and printer connection.",
+"Step 1: Check if the printer is powered on.\nStep 2: Check paper and ink supply.\nStep 3: Check printer connection.\nStep 4: Restart printer services.\nStep 5: Print a test page."
+],
+
+
+[
+"Computer shuts down suddenly",
+"Check overheating and power supply issues.",
+"Step 1: Check computer temperature.\nStep 2: Clean internal dust.\nStep 3: Check power cable connection.\nStep 4: Test the power supply.\nStep 5: Replace damaged parts if needed."
+],
+
+
+[
+"Broken power button",
+"Repair or replace the button.",
+"Step 1: Check if the button is physically damaged.\nStep 2: Check the motherboard power connection.\nStep 3: Test another way to power on the computer.\nStep 4: Replace the damaged power button."
+],
+
+
+[
+"Fan making loud noise",
+"Clean or replace the cooling fan.",
+"Step 1: Turn off the computer.\nStep 2: Open the computer case.\nStep 3: Remove dust from the fan.\nStep 4: Check if the fan is loose.\nStep 5: Replace the fan if damaged."
+],
+
+
+[
+"Screen flickering",
+"Check cable connection and graphics driver.",
+"Step 1: Check monitor cable connection.\nStep 2: Try another cable.\nStep 3: Update graphics drivers.\nStep 4: Adjust display settings.\nStep 5: Test another monitor."
+],
+
+
+[
+"Battery not charging",
+"Check charger and battery condition.",
+"Step 1: Check charger connection.\nStep 2: Test another power outlet.\nStep 3: Inspect charger for damage.\nStep 4: Check battery health.\nStep 5: Replace battery if necessary."
+],
+
+[
+"BIOS not loading",
+"Reset BIOS settings or check motherboard.",
+"Step 1: Turn off the computer completely.\nStep 2: Remove power cable.\nStep 3: Press power button for 10 seconds.\nStep 4: Enter BIOS using F2 or DEL key.\nStep 5: Reset BIOS to default settings."
+],
+
+[
+"Computer restarts repeatedly",
+"Check hardware components and power supply.",
+"Step 1: Disconnect external devices.\nStep 2: Check RAM and reseat it.\nStep 3: Inspect power supply unit.\nStep 4: Boot into safe mode.\nStep 5: Replace faulty hardware if needed."
+],
+
+[
+"Black screen after startup",
+"Check GPU or monitor connection.",
+"Step 1: Check monitor cable.\nStep 2: Try another display output.\nStep 3: Remove and reseat GPU.\nStep 4: Boot in safe mode.\nStep 5: Replace faulty graphics card."
+],
+
+[
+"Keyboard typing wrong characters",
+"Check keyboard language settings or hardware issue.",
+"Step 1: Check keyboard language layout.\nStep 2: Switch input language.\nStep 3: Restart computer.\nStep 4: Test keyboard on another PC.\nStep 5: Replace keyboard if needed."
+],
+
+[
+"Mouse cursor jumping randomly",
+"Clean mouse sensor or replace mouse.",
+"Step 1: Clean mouse bottom sensor.\nStep 2: Change mouse surface.\nStep 3: Try another USB port.\nStep 4: Update mouse driver.\nStep 5: Replace mouse if issue continues."
+],
+
+[
+"External hard drive not detected",
+"Check cable and USB port.",
+"Step 1: Change USB port.\nStep 2: Check cable condition.\nStep 3: Try another computer.\nStep 4: Check disk management.\nStep 5: Replace drive if not detected."
+],
+
+[
+"Computer beeping on startup",
+"Check RAM or hardware error codes.",
+"Step 1: Count beep sounds.\nStep 2: Turn off PC.\nStep 3: Reseat RAM sticks.\nStep 4: Check GPU installation.\nStep 5: Refer to motherboard manual."
+],
+
+[
+"Display resolution incorrect",
+"Adjust display settings or driver.",
+"Step 1: Right-click desktop.\nStep 2: Open display settings.\nStep 3: Set recommended resolution.\nStep 4: Update graphics driver.\nStep 5: Restart computer."
+],
+
+[
+"Computer lagging during startup",
+"Disable startup programs.",
+"Step 1: Open Task Manager.\nStep 2: Go to Startup tab.\nStep 3: Disable unnecessary apps.\nStep 4: Restart computer.\nStep 5: Monitor performance."
+],
+
+[
+"Headphones not working",
+"Check audio port and driver.",
+"Step 1: Plug headphones properly.\nStep 2: Check audio output settings.\nStep 3: Try another port.\nStep 4: Update audio drivers.\nStep 5: Replace headphones if needed."
+],
+
+[
+"WiFi adapter not detected (hardware side)",
+"Check wireless adapter or driver.",
+"Step 1: Open Device Manager.\nStep 2: Look for network adapters.\nStep 3: Enable wireless adapter.\nStep 4: Update driver.\nStep 5: Replace adapter if missing."
+],
+
+[
+"Computer case not closing properly",
+"Check internal cable placement.",
+"Step 1: Inspect inside PC case.\nStep 2: Arrange cables properly.\nStep 3: Remove obstacles.\nStep 4: Align case panels.\nStep 5: Secure screws tightly."
+],
+
+[
+"Overheating laptop charger",
+"Replace charger or check power source.",
+"Step 1: Unplug charger.\nStep 2: Check for damage or heat.\nStep 3: Try another outlet.\nStep 4: Test with another charger.\nStep 5: Replace if overheating continues."
+],
+
+[
+"Motherboard not detecting components",
+"Check hardware seating and BIOS.",
+"Step 1: Turn off PC.\nStep 2: Reseat RAM and GPU.\nStep 3: Check all cables.\nStep 4: Enter BIOS settings.\nStep 5: Replace motherboard if needed."
+],
+
+[
+"Front USB ports not working",
+"Check internal USB cable connection.",
+"Step 1: Open PC case.\nStep 2: Check front USB cable.\nStep 3: Reconnect motherboard header.\nStep 4: Test ports again.\nStep 5: Replace front panel if broken."
+],
+
+[
+"Computer stuck on boot screen",
+"Check boot drive and hardware connections.",
+"Step 1: Restart the computer.\nStep 2: Enter BIOS settings.\nStep 3: Check boot order.\nStep 4: Ensure hard drive is detected.\nStep 5: Repair or replace boot drive if needed."
+],
+
+[
+"CMOS battery failure",
+"Replace the CMOS battery.",
+"Step 1: Turn off PC.\nStep 2: Open case.\nStep 3: Locate CMOS battery.\nStep 4: Replace with new battery.\nStep 5: Reconfigure BIOS settings."
+],
+
+[
+"GPU overheating",
+"Clean GPU and improve airflow.",
+"Step 1: Turn off PC.\nStep 2: Clean GPU fan.\nStep 3: Remove dust buildup.\nStep 4: Improve case ventilation.\nStep 5: Monitor temperature."
+],
+
+[
+"RAM slot not working",
+"Test different RAM slots.",
+"Step 1: Turn off PC.\nStep 2: Remove RAM.\nStep 3: Insert into another slot.\nStep 4: Test each slot.\nStep 5: Replace motherboard if faulty."
+],
+
+[
+"Hard disk clicking sound",
+"Backup data and replace disk.",
+"Step 1: Listen for clicking sound.\nStep 2: Backup files immediately.\nStep 3: Stop using disk.\nStep 4: Test disk health.\nStep 5: Replace hard drive."
+],
+
+[
+"Laptop touchpad not working",
+"Enable touchpad or reinstall driver.",
+"Step 1: Check touchpad shortcut key.\nStep 2: Enable in settings.\nStep 3: Restart laptop.\nStep 4: Update driver.\nStep 5: Replace touchpad if needed."
+],
+
+[
+"USB device keeps disconnecting",
+"Check USB port and power settings.",
+"Step 1: Try another USB port.\nStep 2: Disable USB power saving.\nStep 3: Update drivers.\nStep 4: Test another device.\nStep 5: Replace port if faulty."
+],
+
+[
+"BIOS password forgotten",
+"Reset CMOS battery.",
+"Step 1: Turn off PC.\nStep 2: Remove CMOS battery.\nStep 3: Wait 5 minutes.\nStep 4: Reinsert battery.\nStep 5: Restart system."
+],
+
+[
+"Computer not recognizing SSD",
+"Check connection and BIOS.",
+"Step 1: Check SSD cable.\nStep 2: Enter BIOS.\nStep 3: Verify detection.\nStep 4: Change SATA port.\nStep 5: Replace SSD if needed."
+],
+
+[
+"Power supply fan not spinning",
+"Check PSU or replace unit.",
+"Step 1: Turn off PC.\nStep 2: Check PSU fan.\nStep 3: Test power supply.\nStep 4: Inspect wiring.\nStep 5: Replace PSU if faulty."
+],
+
+[
+"Computer emits burning smell",
+"Turn off immediately and inspect hardware.",
+"Step 1: Shut down PC immediately.\nStep 2: Unplug power cable.\nStep 3: Inspect PSU and motherboard.\nStep 4: Look for burnt components.\nStep 5: Replace damaged parts."
+],
+
+[
+"RAM usage physically unstable",
+"Reseat RAM properly.",
+"Step 1: Turn off PC.\nStep 2: Remove RAM sticks.\nStep 3: Clean RAM slots.\nStep 4: Reinsert firmly.\nStep 5: Test system stability."
+],
+
+[
+"Monitor power light on but black screen",
+"Check GPU or cable.",
+"Step 1: Check HDMI/VGA cable.\nStep 2: Try another monitor.\nStep 3: Check GPU connection.\nStep 4: Switch input source.\nStep 5: Replace faulty part."
+],
+
+[
+"PC case vibrating noise",
+"Tighten internal components.",
+"Step 1: Turn off PC.\nStep 2: Open case.\nStep 3: Tighten screws.\nStep 4: Secure fans.\nStep 5: Close case and test."
+],
+
+[
+"Front audio jack not working",
+"Check internal audio cable.",
+"Step 1: Open case.\nStep 2: Check audio header.\nStep 3: Reconnect cable.\nStep 4: Test audio port.\nStep 5: Replace front panel if needed."
+],
+
+[
+"Computer not detecting RAM upgrade",
+"Check compatibility.",
+"Step 1: Verify RAM type.\nStep 2: Check motherboard support.\nStep 3: Reinstall RAM.\nStep 4: Update BIOS.\nStep 5: Replace incompatible RAM."
+],
+
+[
+"GPU artifacting (screen glitches)",
+"Check GPU health.",
+"Step 1: Update graphics driver.\nStep 2: Clean GPU.\nStep 3: Check temperature.\nStep 4: Test another GPU.\nStep 5: Replace GPU if failing."
+],
+
+[
+"Motherboard beep no display",
+"Check RAM and GPU.",
+"Step 1: Count beep pattern.\nStep 2: Reseat RAM.\nStep 3: Check GPU.\nStep 4: Reset BIOS.\nStep 5: Replace faulty hardware."
+],
+
+[
+"Computer stuck restarting loop",
+"Check boot system.",
+"Step 1: Enter safe mode.\nStep 2: Remove recent updates.\nStep 3: Check hardware.\nStep 4: Repair OS.\nStep 5: Reinstall system if needed."
+],
+
+[
+"USB device not powering",
+"Check USB power supply.",
+"Step 1: Try different USB port.\nStep 2: Restart PC.\nStep 3: Update USB drivers.\nStep 4: Check BIOS USB settings.\nStep 5: Replace motherboard port if needed."
+],
+
+[
+"Hard drive full performance failure",
+"Clean and optimize storage.",
+"Step 1: Delete unnecessary files.\nStep 2: Run disk cleanup.\nStep 3: Defragment HDD.\nStep 4: Check disk health.\nStep 5: Upgrade storage."
+],
+
+[
+"Computer time resets every boot",
+"Replace CMOS battery.",
+"Step 1: Turn off PC.\nStep 2: Replace CMOS battery.\nStep 3: Enter BIOS.\nStep 4: Set correct time.\nStep 5: Save settings."
+],
+
+[
+"CPU fan not detected",
+"Check fan connection.",
+"Step 1: Open case.\nStep 2: Check CPU fan cable.\nStep 3: Reconnect properly.\nStep 4: Clean fan.\nStep 5: Replace fan if broken."
+],
+
+[
+"Display colors incorrect",
+"Check monitor or GPU.",
+"Step 1: Check cable.\nStep 2: Update GPU driver.\nStep 3: Reset display settings.\nStep 4: Try another monitor.\nStep 5: Replace faulty hardware."
+],
+
+[
+"Laptop hinge broken",
+"Repair or replace hinge.",
+"Step 1: Inspect hinge damage.\nStep 2: Avoid forcing screen.\nStep 3: Tighten screws.\nStep 4: Use repair kit.\nStep 5: Replace hinge assembly."
+],
+
+[
+"Computer USB power surge",
+"Check power supply stability.",
+"Step 1: Unplug USB devices.\nStep 2: Restart PC.\nStep 3: Check PSU.\nStep 4: Test ports.\nStep 5: Replace PSU if needed."
+],
+
+[
+"SSD not booting OS",
+"Repair boot sector.",
+"Step 1: Enter BIOS.\nStep 2: Check boot order.\nStep 3: Repair boot files.\nStep 4: Use recovery mode.\nStep 5: Reinstall OS if needed."
+],
+
+[
+"Graphics card not powering",
+"Check PCIe connection.",
+"Step 1: Turn off PC.\nStep 2: Reseat GPU.\nStep 3: Check power cables.\nStep 4: Test slot.\nStep 5: Replace GPU if dead."
+],
+
+[
+"Computer lag after hardware upgrade",
+"Check compatibility.",
+"Step 1: Verify new hardware specs.\nStep 2: Update drivers.\nStep 3: Check BIOS.\nStep 4: Test performance.\nStep 5: Remove incompatible parts."
+],
+
+[
+"RAM overheating",
+"Improve airflow.",
+"Step 1: Turn off PC.\nStep 2: Clean RAM area.\nStep 3: Improve cooling.\nStep 4: Reduce overclocking.\nStep 5: Monitor temperature."
+],
+
+[
+"Monitor port damage",
+"Use alternative port or replace monitor.",
+"Step 1: Try HDMI/VGA alternative.\nStep 2: Inspect port damage.\nStep 3: Test cable.\nStep 4: Use adapter.\nStep 5: Replace monitor if needed."
+],
+
+[
+"PC not detecting keyboard on boot",
+"Check USB initialization.",
+"Step 1: Try another USB port.\nStep 2: Enter BIOS settings.\nStep 3: Enable USB legacy support.\nStep 4: Restart PC.\nStep 5: Replace keyboard if needed."
+],
+
+[
+"Motherboard short circuit",
+"Replace motherboard immediately.",
+"Step 1: Turn off PC.\nStep 2: Unplug power.\nStep 3: Inspect board damage.\nStep 4: Remove components.\nStep 5: Replace motherboard."
+],
+
+[
+"Computer not detecting external monitor",
+"Check cable connection and display output settings.",
+"Step 1: Check HDMI/VGA/DisplayPort cable.\nStep 2: Switch monitor input source.\nStep 3: Restart computer.\nStep 4: Try another cable.\nStep 5: Test with another monitor."
+],
+
+[
+"Computer power light on but no boot",
+"Check RAM and internal components.",
+"Step 1: Turn off PC.\nStep 2: Reseat RAM sticks.\nStep 3: Check GPU connection.\nStep 4: Remove external devices.\nStep 5: Try boot again."
+],
+
+[
+"Fan spins but no display",
+"Check GPU or motherboard.",
+"Step 1: Check monitor cable.\nStep 2: Reseat GPU.\nStep 3: Reset BIOS.\nStep 4: Test RAM.\nStep 5: Replace faulty hardware."
+],
+
+[
+"PC randomly freezes during use",
+"Check overheating or RAM issues.",
+"Step 1: Monitor CPU temperature.\nStep 2: Close heavy apps.\nStep 3: Test RAM.\nStep 4: Clean cooling system.\nStep 5: Restart system."
+],
+
+[
+"Laptop keyboard keys stuck",
+"Clean keyboard or replace keys.",
+"Step 1: Turn off laptop.\nStep 2: Clean keyboard surface.\nStep 3: Remove debris under keys.\nStep 4: Test typing.\nStep 5: Replace keyboard if needed."
+],
+
+[
+"External mouse lagging",
+"Check USB port or battery.",
+"Step 1: Change USB port.\nStep 2: Replace batteries.\nStep 3: Clean sensor.\nStep 4: Update drivers.\nStep 5: Replace mouse if needed."
+],
+
+[
+"Computer not recognizing headphones",
+"Check audio port and driver.",
+"Step 1: Plug headphones properly.\nStep 2: Check sound settings.\nStep 3: Try another port.\nStep 4: Update audio driver.\nStep 5: Test another headset."
+],
+
+[
+"PC stuck in BIOS loop",
+"Fix boot settings.",
+"Step 1: Enter BIOS.\nStep 2: Check boot order.\nStep 3: Select correct drive.\nStep 4: Reset BIOS settings.\nStep 5: Save and restart."
+],
+
+[
+"Hard drive not spinning",
+"Check power and SATA connection.",
+"Step 1: Turn off PC.\nStep 2: Check SATA cable.\nStep 3: Check power cable.\nStep 4: Test another port.\nStep 5: Replace drive if dead."
+],
+
+[
+"SSD overheating",
+"Improve airflow and cooling.",
+"Step 1: Turn off PC.\nStep 2: Check SSD placement.\nStep 3: Improve airflow.\nStep 4: Clean dust.\nStep 5: Monitor temperature."
+],
+
+[
+"PC case fan not detected",
+"Check fan connector.",
+"Step 1: Open case.\nStep 2: Check fan cable.\nStep 3: Reconnect properly.\nStep 4: Test fan in BIOS.\nStep 5: Replace fan if needed."
+],
+
+[
+"Computer makes beep sound on startup",
+"Check hardware error.",
+"Step 1: Count beep pattern.\nStep 2: Check motherboard manual.\nStep 3: Reseat RAM.\nStep 4: Check GPU.\nStep 5: Replace faulty component."
+],
+
+[
+"Monitor power but no signal",
+"Check GPU or cable.",
+"Step 1: Check HDMI/VGA cable.\nStep 2: Switch input source.\nStep 3: Reseat GPU.\nStep 4: Try another monitor.\nStep 5: Replace faulty part."
+],
+
+[
+"Computer USB ports loose",
+"Check physical damage.",
+"Step 1: Inspect USB port.\nStep 2: Try different port.\nStep 3: Avoid force plugging.\nStep 4: Clean ports.\nStep 5: Repair motherboard if needed."
+],
+
+[
+"Computer shuts down when gaming",
+"Check overheating or PSU.",
+"Step 1: Monitor temperature.\nStep 2: Clean fans.\nStep 3: Check PSU wattage.\nStep 4: Reduce load.\nStep 5: Replace PSU if needed."
+],
+
+[
+"Screen turns black randomly",
+"Check GPU or cable.",
+"Step 1: Check display cable.\nStep 2: Update GPU driver.\nStep 3: Test another monitor.\nStep 4: Check GPU temperature.\nStep 5: Replace GPU if faulty."
+],
+
+[
+"Laptop charger not detected",
+"Check charger or port.",
+"Step 1: Try another outlet.\nStep 2: Inspect charger cable.\nStep 3: Check charging port.\nStep 4: Restart laptop.\nStep 5: Replace charger if needed."
+],
+
+[
+"Motherboard LED lights not working",
+"Check power connection.",
+"Step 1: Check PSU cable.\nStep 2: Inspect motherboard power pins.\nStep 3: Reseat connectors.\nStep 4: Test PSU.\nStep 5: Replace motherboard if needed."
+],
+
+[
+"RAM slots dusty or dirty",
+"Clean RAM slots.",
+"Step 1: Turn off PC.\nStep 2: Open case.\nStep 3: Clean RAM slots.\nStep 4: Reinsert RAM.\nStep 5: Test system."
+],
+
+[
+"PC not detecting graphics card",
+"Check GPU installation.",
+"Step 1: Turn off PC.\nStep 2: Reseat GPU.\nStep 3: Check power cables.\nStep 4: Update drivers.\nStep 5: Replace GPU if needed."
+],
+
+[
+"Computer fan speed too high",
+"Check temperature settings.",
+"Step 1: Check CPU temp.\nStep 2: Clean fans.\nStep 3: Adjust fan settings in BIOS.\nStep 4: Reduce load.\nStep 5: Replace thermal paste."
+],
+
+[
+"External storage not showing",
+"Check USB or disk manager.",
+"Step 1: Try another USB port.\nStep 2: Check Disk Management.\nStep 3: Assign drive letter.\nStep 4: Update drivers.\nStep 5: Replace device if needed."
+],
+
+[
+"PC freezes when opening programs",
+"Check RAM or disk usage.",
+"Step 1: Open Task Manager.\nStep 2: Close heavy apps.\nStep 3: Check disk usage.\nStep 4: Test RAM.\nStep 5: Restart system."
+],
+
+[
+"Monitor brightness not adjusting",
+"Check display driver.",
+"Step 1: Open display settings.\nStep 2: Update graphics driver.\nStep 3: Try monitor buttons.\nStep 4: Reset settings.\nStep 5: Replace monitor if needed."
+],
+
+[
+"USB device not charging",
+"Check USB power output.",
+"Step 1: Try another USB port.\nStep 2: Restart PC.\nStep 3: Check power settings.\nStep 4: Update drivers.\nStep 5: Test another device."
+],
+
+[
+"Computer not responding to power button",
+"Check front panel connection.",
+"Step 1: Check power cable.\nStep 2: Inspect front panel pins.\nStep 3: Try motherboard power switch.\nStep 4: Replace button.\nStep 5: Replace PSU if needed."
+],
+
+[
+"Keyboard lights not working",
+"Check USB power or settings.",
+"Step 1: Reconnect keyboard.\nStep 2: Try another USB port.\nStep 3: Restart PC.\nStep 4: Check keyboard settings.\nStep 5: Replace keyboard if needed."
+],
+
+[
+"PC stuck on manufacturer logo",
+"Fix boot sequence.",
+"Step 1: Enter BIOS.\nStep 2: Check boot drive.\nStep 3: Disable fast boot.\nStep 4: Repair OS.\nStep 5: Reinstall system if needed."
+],
+
+[
+"Audio jack static noise",
+"Check port or hardware damage.",
+"Step 1: Try another headset.\nStep 2: Clean audio port.\nStep 3: Update drivers.\nStep 4: Check cable damage.\nStep 5: Replace audio port if needed."
+],
+
+[
+"Computer not detecting RAM speed correctly",
+"Enable XMP profile.",
+"Step 1: Enter BIOS.\nStep 2: Enable XMP.\nStep 3: Save settings.\nStep 4: Restart PC.\nStep 5: Check RAM speed."
+],
+
+[
+"Graphics driver crashing hardware",
+"Reinstall GPU driver.",
+"Step 1: Boot in safe mode.\nStep 2: Uninstall GPU driver.\nStep 3: Download latest driver.\nStep 4: Install fresh driver.\nStep 5: Restart PC."
+],
+
+[
+"PC overheating after cleaning",
+"Check thermal paste.",
+"Step 1: Turn off PC.\nStep 2: Open CPU cooler.\nStep 3: Check thermal paste.\nStep 4: Reapply paste.\nStep 5: Test temperature."
+],
+
+[
+"Laptop hinge loose",
+"Repair hinge assembly.",
+"Step 1: Inspect hinge.\nStep 2: Tighten screws.\nStep 3: Avoid force opening.\nStep 4: Use adhesive or repair kit.\nStep 5: Replace hinge if needed."
+],
+
+[
+"PC not saving BIOS settings",
+"Replace CMOS battery.",
+"Step 1: Turn off PC.\nStep 2: Replace CMOS battery.\nStep 3: Enter BIOS.\nStep 4: Save settings.\nStep 5: Restart system."
+],
+
+[
+"Power surge damage risk",
+"Use UPS or surge protector.",
+"Step 1: Unplug PC.\nStep 2: Check power source.\nStep 3: Install surge protector.\nStep 4: Use UPS.\nStep 5: Test system safety."
+],
+
+[
+"Computer boots but no peripherals work",
+"Check USB controller.",
+"Step 1: Try different USB ports.\nStep 2: Restart PC.\nStep 3: Enter BIOS.\nStep 4: Enable USB support.\nStep 5: Replace motherboard if needed."
+],
+
+[
+"Computer power button works but system does not start",
+"Check internal connections and power supply.",
+"Step 1: Turn off and unplug the computer.\nStep 2: Open the computer case.\nStep 3: Check motherboard power cables (24-pin and CPU power).\nStep 4: Reseat RAM and GPU.\nStep 5: Test power supply or replace if faulty."
+]
+
+];
+
+// render function
+function renderProblems(list){
+    let container = document.getElementById("content");
+    container.innerHTML = "";
+
+    list.forEach((p, index) => {
+        container.innerHTML += `
+        <div class="problem" onclick="toggleSolution(${index})">
+            <h3>${p[0]}</h3>
+
+            <div class="solution" id="sol-${index}">
+                <p><b>Solution:</b> ${p[1]}</p>
+                <div class="tutorial">${p[2].replace(/\n/g,"<br>")}</div>
+            </div>
+        </div>
+        `;
+    });
+}
+
+// toggle solution open/close
+function toggleSolution(index){
+    let sol = document.getElementById("sol-" + index);
+    sol.style.display = (sol.style.display === "block") ? "none" : "block";
+}
+
+// SEARCH FUNCTION (THIS IS WHAT YOU WERE MISSING)
+function searchProblem(){
+    let input = document.getElementById("searchBar").value.toLowerCase();
+
+    let filtered = softwareProblems.filter(p =>
+        p[0].toLowerCase().includes(input) ||
+        p[1].toLowerCase().includes(input)
+    );
+
+    renderProblems(filtered);
+}
+
+
+renderProblems(hardwareProblems);
+
+function displayProblems(list){
+    let output="";
+
+
+list.forEach((item,index)=>{
+
+
+let tutorialSteps = item[2]
+.split("\n")
+.map(step=>{
+
+return "<p>" + step + "</p>";
+
+})
+.join("");
+
+
+
+output += `
+
+        <div class="problem" onclick="showSolution(${index})">
+
+            <h3>${index+1}. ${item[0]}</h3>
+
+            <div class="solution" id="solution-${index}">
+
+                <p><b>Solution:</b><br>${item[1]}</p>
+
+                <div class="separator"></div>
+
+                <p class="tutorial">
+                    <b>Tutorial:</b><br>
+                    ${tutorialSteps}
+                </p>
+
+            </div>
+        </div>
+        `;
+    });
+
+    document.getElementById("content").innerHTML = output;
+}
+
+
+
+
+function showSolution(id){
+
+
+let solution = document.getElementById("solution-"+id);
+
+
+
+if(solution.style.display === "block"){
+
+
+solution.style.display="none";
+
+
+}
+
+else{
+
+
+solution.style.display="block";
+
+
+}
+
+
+}
+
+
+
+// Show all hardware problems first
+
+displayProblems(hardwareProblems);
+
+
+
+
+
+function searchProblem(){
+
+
+let search = 
+document.getElementById("searchBar").value.toLowerCase();
+
+
+
+let filtered = hardwareProblems.filter(problem =>
+
+
+problem[0].toLowerCase().includes(search)
+
+
+);
+
+
+
+displayProblems(filtered);
+
+
+
+}
+
+
+</script>
+
+
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Show the welcome name if the user already signed in on the Home page (added) */
+    (function () {
+        var chip = document.getElementById("navbarWelcome");
+        if (chip) {
+            try {
+                chip.textContent = localStorage.getItem("userNickname") || "Guest";
+            } catch (e) {}
+        }
+    })();
+
+    /* Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+</body>
+
+</html>

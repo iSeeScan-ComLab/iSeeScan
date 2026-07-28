@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSeeScan - Interactive IT & Hardware Lab</title>
+    <style>
+    
+    /* Back to Dashboard Button */
+.btn-back-dashboard {
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--gh-border);
+    border-radius: 8px;
+    color: var(--gh-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-back-dashboard:hover {
+    background: rgba(0, 234, 255, 0.15);
+    color: var(--gh-cyan);
+    border-color: var(--gh-cyan);
+    transform: translateX(-2px);
+}
+        :root {
+            --gh-bg-dark: #050811;
+            --gh-card-bg: rgba(13, 21, 39, 0.75);
+            --gh-cyan: #00eaff;
+            --gh-cyan-glow: rgba(0, 234, 255, 0.35);
+            --gh-emerald: #00ff88;
+            --gh-orange: #ff7700;
+            --gh-border: rgba(0, 234, 255, 0.25);
+            --gh-text-muted: #94a3b8;
+        }
+
+        /* Main Background & Container styling */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at 50% 0%, #101d36 0%, var(--gh-bg-dark) 70%),
+                        linear-gradient(180deg, rgba(0, 234, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 234, 255, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            min-height: 100vh;
+            padding: 16px;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e2e8f0;
+        }
+
+        .gh-card {
+            background: var(--gh-card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--gh-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,234,255,0.05);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* User Status Bar & Guest Warning */
+        .user-status-bar {
+            width: 100%;
+            padding: 10px 16px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid var(--gh-border);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .user-info {
+            font-size: 14px;
+            color: #b0c4de;
+        }
+
+        .user-info strong {
+            color: var(--gh-cyan);
+        }
+
+        .guest-warning {
+            display: none;
+            width: 100%;
+            background: rgba(255, 77, 77, 0.15);
+            border: 1px solid #ff4d4d;
+            color: #ff6b6b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .btn-signup-link {
+            color: var(--gh-cyan);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Header Section */
+        .gh-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0,234,255,0.15);
+            padding-bottom: 16px;
+        }
+        .gh-title {
+            color: var(--gh-cyan);
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 15px var(--gh-cyan-glow);
+        }
+        .gh-player-box {
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid var(--gh-cyan);
+            padding: 6px 14px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 10px rgba(0,234,255,0.15);
+        }
+
+        /* Responsive Navigation Tabs */
+        .gh-tabs-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
+        .gh-tab {
+            padding: 10px 18px;
+            background: rgba(0, 234, 255, 0.05);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            border-radius: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gh-tab:hover {
+            background: rgba(0, 234, 255, 0.15);
+            color: var(--gh-cyan);
+            border-color: var(--gh-cyan);
+            transform: translateY(-2px);
+        }
+        .gh-tab.active {
+            background: linear-gradient(135deg, rgba(0, 234, 255, 0.25), rgba(0, 255, 136, 0.1));
+            border-color: var(--gh-cyan);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--gh-cyan-glow);
+        }
+
+        /* Buttons */
+        .gh-btn {
+            padding: 10px 18px;
+            background: linear-gradient(135deg, #00eaff, #00b4d8);
+            border: none;
+            border-radius: 8px;
+            color: #050b14;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 4px;
+            box-shadow: 0 4px 12px rgba(0,234,255,0.3);
+        }
+        .gh-btn:hover {
+            filter: brightness(1.15);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,234,255,0.4);
+        }
+        .gh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* RJ45 Responsive Styling */
+        .rj45-housing {
+            position: relative;
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px 12px 4px 4px;
+            padding: 16px 10px 8px 10px;
+            max-width: 380px;
+            margin: 15px auto;
+            box-shadow: inset 0 0 20px rgba(0,234,255,0.05);
+        }
+        .rj45-gold-pins {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .rj45-gold-pin {
+            flex: 1;
+            max-width: 36px;
+            margin: 0 2px;
+            height: 10px;
+            background: linear-gradient(180deg, #ffe066, #b8860b);
+            border-radius: 2px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: bold;
+            color: #000;
+        }
+        .rj45-channels {
+            display: flex;
+            justify-content: space-between;
+            height: 120px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            padding: 6px;
+            gap: 4px;
+        }
+        .rj45-slot {
+            flex: 1;
+            height: 100%;
+            border: 1px dashed rgba(0, 234, 255, 0.3);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .rj45-slot.drag-over, .rj45-slot:hover {
+            border-color: var(--gh-emerald);
+            background: rgba(0,255,136,0.15);
+        }
+
+        /* Wire Palette */
+        .wire-palette-grid {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .wire-pill {
+            width: 34px;
+            height: 90px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            position: relative;
+            user-select: none;
+        }
+        .wire-pill:hover { transform: translateY(-4px) scale(1.05); z-index: 10; }
+        .wire-pill.selected { border-color: var(--gh-emerald) !important; box-shadow: 0 0 14px var(--gh-emerald); transform: scale(1.1); }
+        .wire-label { font-size: 9px; font-weight: bold; color: #fff; text-shadow: 0 1px 2px #000; text-align: center; position: absolute; bottom: 4px; width: 100%; word-break: break-word; line-height: 1; pointer-events: none; }
+        .rj45-clip { width: 80px; height: 16px; background: rgba(255,255,255,0.15); margin: 0 auto; border-radius: 0 0 6px 6px; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Match-Up Cards Responsive Grid */
+        .mobo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.3fr;
+            gap: 20px;
+        }
+        .mobo-item {
+            background: rgba(0, 234, 255, 0.04);
+            border: 1px solid rgba(0, 234, 255, 0.25);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .mobo-item:hover {
+            background: rgba(0, 234, 255, 0.15);
+            border-color: var(--gh-cyan);
+            transform: translateX(3px);
+        }
+        .mobo-item.selected {
+            border-color: var(--gh-emerald);
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--gh-emerald);
+            font-weight: bold;
+            box-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
+        }
+        .mobo-item.matched {
+            border-color: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02);
+            color: #55657e;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        /* Network Topology Step Sequence Test Styling */
+        .topo-step-card {
+            background: rgba(13, 21, 39, 0.85);
+            border: 1px solid rgba(0, 234, 255, 0.25);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .topo-step-card:active { cursor: grabbing; }
+        .topo-step-card.dragging {
+            opacity: 0.4;
+            border-color: var(--gh-cyan);
+            transform: scale(0.98);
+        }
+        .topo-step-card.drag-over {
+            border-color: var(--gh-cyan);
+            box-shadow: 0 0 15px var(--gh-cyan-glow);
+            transform: translateY(-2px);
+        }
+        .topo-step-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--gh-cyan);
+            color: #050b14;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Mobile Breakpoints */
+        @media (max-width: 768px) {
+            .gh-card { padding: 16px; }
+            .mobo-grid { grid-template-columns: 1fr; }
+            .gh-title { font-size: 1.1rem; }
+            .wire-pill { width: 30px; height: 75px; }
+            .rj45-housing { max-width: 100%; }
+            .topo-step-card { flex-direction: column; align-items: flex-start; }
+            .user-status-bar { flex-direction: column; gap: 6px; align-items: flex-start; }
+        }
+    
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="navbar-logo-emoji">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link active">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <a href="main.html" class="navbar-account-btn" title="Go to Home / Sign in">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item active">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+</div>
+
+<div class="navbar-spacer"></div>
+
+
+    <div class="gh-card">
+        <!-- User Header Bar -->
+        <div class="user-status-bar">
+            <div class="user-info">
+                Player: <strong id="playerDisplay">Loading...</strong>
+            </div>
+            <div class="user-info">
+                Role: <strong id="roleDisplay">--</strong>
+            </div>
+        </div>
+
+<!-- Back to Dashboard Button -->
+           <div class="container">
+        <a href="main.html" class="btn-back-dashboard">← Back to Dashboard</a>
+
+        <!-- Guest Banner -->
+        <div id="guestNotice" class="guest-warning">
+            ⚠️ Playing as Guest. Scores will not be saved to the leaderboard. 
+            <span class="btn-signup-link" onclick="redirectToSignup()">Sign up first</span> to save your progress!
+        </div>
+
+        <div class="gh-header">
+            <h2 class="gh-title">⚡ iSeeScan Interactive Hardware & Network Lab</h2>
+            <div class="gh-player-box">
+                <span style="font-size:12px; color:var(--gh-text-muted);">Handle:</span>
+                <span style="color:var(--gh-cyan); font-weight:bold; font-size:14px;" id="ghPlayerDisplay">CyberTech</span>
+                <span style="font-size:12px; color:var(--gh-text-muted); margin-left:8px;">Score:</span>
+                <strong style="color:var(--gh-emerald); font-size:16px;" id="ghScore">0</strong> <span style="font-size:11px; color:var(--gh-emerald);">PTS</span>
+            </div>
+        </div>
+
+        <!-- Modern Navigation Tabs -->
+        <div class="gh-tabs-wrapper">
+            <button class="gh-tab active" id="tab-mobo" onclick="gameHub.switchStage('mobo')">🧩 Motherboard Match-Up</button>
+            <button class="gh-tab" id="tab-soft" onclick="gameHub.switchStage('soft')">💻 Software Match-Up</button>
+            <button class="gh-tab" id="tab-rj45" onclick="gameHub.switchStage('rj45')">🔌 RJ45 Crimp Lab</button>
+            <button class="gh-tab" id="tab-rufus" onclick="gameHub.switchStage('rufus')">💾 Rufus Word Puzzle</button>
+            <button class="gh-tab" id="tab-topotest" onclick="gameHub.switchStage('topotest')">🌐 Topology Test Game</button>
+        </div>
+
+        <!-- 1. Motherboard Match-Up Module -->
+        <div id="stage-mobo" class="gh-stage">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; color:var(--gh-cyan); font-size:1.1rem;">🧩 Motherboard Component Match-Up</h3>
+                    <p style="font-size:13px; color:var(--gh-text-muted); margin:4px 0 0 0;">Tap a motherboard component on the left, then select its matching function on the right.</p>
+                </div>
+                <button class="gh-btn" style="background:linear-gradient(135deg, #ff7700, #ff5500); color:#fff;" onclick="gameHub.resetMoboMatch()">Scramble & Reset ↺</button>
+            </div>
+
+            <div class="mobo-grid">
+                <div id="moboPartsList"></div>
+                <div id="moboDescsList"></div>
+            </div>
+        </div>
+
+        <!-- 2. Software Concept Match-Up Module -->
+        <div id="stage-soft" class="gh-stage" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; color:var(--gh-cyan); font-size:1.1rem;">💻 Software & OS Concept Match-Up</h3>
+                    <p style="font-size:13px; color:var(--gh-text-muted); margin:4px 0 0 0;">Tap a software concept on the left, then select its matching definition on the right.</p>
+                </div>
+                <button class="gh-btn" style="background:linear-gradient(135deg, #ff7700, #ff5500); color:#fff;" onclick="gameHub.resetSoftwareMatch()">Scramble & Reset ↺</button>
+            </div>
+
+            <div class="mobo-grid">
+                <div id="softPartsList"></div>
+                <div id="softDescsList"></div>
+            </div>
+        </div>
+
+        <!-- 3. RJ45 Drag & Drop / Tap Module -->
+        <div id="stage-rj45" class="gh-stage" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <div>
+                    <h3 style="margin:0; color:var(--gh-cyan); font-size:1.1rem;">🔌 RJ45 Ethernet Crimper Lab</h3>
+                    <p style="font-size:13px; color:var(--gh-text-muted); margin:4px 0 0 0;">Tap a wire strand to select it, then tap a pin channel (1-8) to position it.</p>
+                </div>
+                <div>
+                    <button class="gh-btn" onclick="gameHub.setTargetStandard('T568B')">Target: T568B</button>
+                    <button class="gh-btn" onclick="gameHub.setTargetStandard('T568A')">Target: T568A</button>
+                    <button class="gh-btn" style="background:linear-gradient(135deg, #ff7700, #ff5500); color:#fff;" onclick="gameHub.rescrambleRJ45()">Scramble Wires 🔀</button>
+                </div>
+            </div>
+
+            <!-- RJ45 Plug Diagram -->
+            <div class="rj45-housing">
+                <div style="text-align:center; font-size:10px; color:var(--gh-cyan); font-weight:bold; letter-spacing:1px; margin-bottom:8px;">TRANSPARENT RJ45 CONNECTOR (TOP VIEW)</div>
+                <div class="rj45-gold-pins">
+                    <div class="rj45-gold-pin">P1</div>
+                    <div class="rj45-gold-pin">P2</div>
+                    <div class="rj45-gold-pin">P3</div>
+                    <div class="rj45-gold-pin">P4</div>
+                    <div class="rj45-gold-pin">P5</div>
+                    <div class="rj45-gold-pin">P6</div>
+                    <div class="rj45-gold-pin">P7</div>
+                    <div class="rj45-gold-pin">P8</div>
+                </div>
+                <div class="rj45-channels" id="rj45Channels"></div>
+                <div class="rj45-clip"></div>
+            </div>
+
+            <!-- Wire Strand Palette -->
+            <div style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 12px; border: 1px solid rgba(0,234,255,0.2);">
+                <div style="font-size:12px; color:var(--gh-cyan); font-weight:bold; margin-bottom:12px; display:flex; justify-content:space-between;">
+                    <span id="paletteStatus">SCRAMBLED WIRE PALETTE (CLICK OR DRAG A COLOR)</span>
+                    <button style="background:none; border:none; color:#ff4444; cursor:pointer; font-size:11px; font-weight:bold;" onclick="gameHub.clearRJ45()">Clear Wires ↺</button>
+                </div>
+                <div id="wirePalette" class="wire-palette-grid"></div>
+            </div>
+
+            <div style="text-align:center; margin-top:18px;">
+                <button class="gh-btn" style="padding:12px 32px; font-size:15px; background:linear-gradient(135deg, #00ff88, #00cc66);" onclick="gameHub.verifyRJ45()">⚡ Verify & Crimp RJ45 Cable</button>
+            </div>
+        </div>
+
+        <!-- 4. Rufus Word Puzzle Module -->
+        <div id="stage-rufus" class="gh-stage" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                <div>
+                    <h3 style="margin:0; color:var(--gh-cyan); font-size:1.1rem;">💾 Rufus & Bootable USB Word Puzzle</h3>
+                    <p style="font-size:13px; color:var(--gh-text-muted); margin:4px 0 0 0;">Unscramble essential terms related to Rufus, partition layouts, and UEFI boot setups!</p>
+                </div>
+                <button class="gh-btn" style="background:linear-gradient(135deg, #ff7700, #ff5500); color:#fff;" onclick="gameHub.resetRufusPuzzle()">New Puzzle Set 🔀</button>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 14px; border: 1px solid rgba(0,234,255,0.2);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <span style="font-size:12px; color:var(--gh-cyan); font-weight:bold;">PUZZLE <span id="rufusPuzzleIndex">1</span> OF <span id="rufusPuzzleTotal">5</span></span>
+                    <span style="font-size:12px; color:var(--gh-emerald); font-weight:bold;" id="rufusPuzzleStreak">Streak: 0</span>
+                </div>
+
+                <div style="text-align:center; padding: 24px 16px; background: rgba(0, 234, 255, 0.04); border-radius: 10px; border: 1px dashed rgba(0, 234, 255, 0.25); margin-bottom: 18px;">
+                    <div style="font-size:12px; color:var(--gh-text-muted); margin-bottom:6px; letter-spacing:1px; font-weight:bold;">CLUE DEFINITION:</div>
+                    <div id="rufusClue" style="font-size:15px; color:#fff; font-weight:600; margin-bottom:16px; max-width:650px; margin-left:auto; margin-right:auto;">Loading clue...</div>
+                    <div style="font-size:12px; color:var(--gh-text-muted); margin-bottom:6px; letter-spacing:1px; font-weight:bold;">SCRAMBLED WORD:</div>
+                    <div id="rufusScrambled" style="font-size:28px; color:var(--gh-cyan); font-weight:bold; letter-spacing:8px; font-family:monospace; text-shadow:0 0 15px var(--gh-cyan-glow);">LOADING</div>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <input type="text" id="rufusInput" placeholder="TYPE ANSWER..." style="background:#050b14; color:var(--gh-emerald); border:2px solid var(--gh-cyan); padding:10px 16px; border-radius:8px; font-size:16px; font-weight:bold; text-transform:uppercase; font-family:monospace; width:250px; outline:none;" onkeydown="if(event.key==='Enter') gameHub.checkRufusPuzzle()">
+                    <button class="gh-btn" style="padding:10px 24px; background:linear-gradient(135deg, #00ff88, #00cc66);" onclick="gameHub.checkRufusPuzzle()">Submit ⚡</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Network Topology Sequencing Test Game Module -->
+        <div id="stage-topotest" class="gh-stage" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                <div>
+                    <h3 style="margin:0; color:var(--gh-cyan); font-size:1.1rem;">🌐 Network Topology Deployment Sequence Test</h3>
+                    <p style="font-size:13px; color:var(--gh-text-muted); margin:4px 0 0 0;">Drag and drop or click up/down arrows to order the network physical infrastructure setup steps from start to finish.</p>
+                </div>
+                <div>
+                    <button class="gh-btn" style="background:linear-gradient(135deg, #ff7700, #ff5500); color:#fff;" onclick="gameHub.scrambleTopoTest()">Scramble Order 🔀</button>
+                    <button class="gh-btn" style="background:linear-gradient(135deg, #00ff88, #00cc66);" onclick="gameHub.verifyTopoTest()">Verify Sequence ⚡</button>
+                </div>
+            </div>
+
+            <div id="topoTestBoard" style="background: rgba(0,0,0,0.3); padding: 18px; border-radius: 14px; border: 1px solid rgba(0,234,255,0.2);"></div>
+        </div>
+
+        <!-- Global Leaderboard -->
+        <div style="margin-top:28px; border-top:1px solid rgba(0,234,255,0.15); padding-top:16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="color:var(--gh-cyan); margin:0; font-size:0.95rem; display:flex; align-items:center; gap:6px;">🏆 REST API Global Leaderboard</h4>
+                <button id="submitScoreBtn" class="gh-btn" style="font-size: 12px; padding: 6px 14px;" onclick="submitScore()">Submit High Score</button>
+            </div>
+            <div id="ghLeaderboard" style="font-size:13px; color:var(--gh-text-muted);">Loading scores...</div>
+        </div>
+    </div>
+
+    <script>
+        // Load user details from LocalStorage on page initialization
+        const nickname = localStorage.getItem("userNickname") || "Guest";
+        const role = localStorage.getItem("userRole") || "Guest";
+
+        const playerDisplay = document.getElementById("playerDisplay");
+        const roleDisplay = document.getElementById("roleDisplay");
+        const guestNotice = document.getElementById("guestNotice");
+        const submitScoreBtn = document.getElementById("submitScoreBtn");
+        const ghPlayerDisplay = document.getElementById("ghPlayerDisplay");
+
+        // Initialize UI state based on authentication
+        function initUserSession() {
+            if (playerDisplay) playerDisplay.textContent = nickname;
+            if (roleDisplay) roleDisplay.textContent = role;
+            if (ghPlayerDisplay) ghPlayerDisplay.textContent = nickname;
+
+            if (role === "Guest" || nickname === "Guest") {
+                // Show guest notification banner
+                if (guestNotice) guestNotice.style.display = "block";
+                
+                // Disable leaderboard submission for guest users
+                if (submitScoreBtn) {
+                    submitScoreBtn.disabled = true;
+                    submitScoreBtn.title = "Please sign up first to submit scores.";
+                }
+            }
+        }
+
+        function redirectToSignup() {
+            window.location.href = "index.html";
+        }
+
+        function submitScore() {
+            if (role === "Guest" || nickname === "Guest") {
+                alert("Please sign up first before submitting scores!");
+                redirectToSignup();
+                return;
+            }
+            
+            // Logic for registered users to submit high score
+            gameHub.submitScore();
+            alert(`Score submitted successfully for ${nickname}!`);
+        }
+
+        class ITGameHub {
+            constructor() {
+                this.score = 0;
+                this.playerHandle = nickname;
+                this.restApiUrl = "https://65c3b5163905a890327cdcb8.mockapi.io/api/v1/leaderboard";
+                
+                this.selectedWireId = null;
+
+                this.leaderboardData = [
+                    { name: "NetAdmin_PH", score: 850, status: "Verified" },
+                    { name: "RufusKing", score: 700, status: "Verified" },
+                    { name: "CrimpMaster", score: 520, status: "Verified" }
+                ];
+
+                this.rj45Slots = Array(8).fill(null);
+                this.targetStandard = "T568B";
+
+                this.baseWirePalette = [
+                    { id: "WO", name: "White-Orange", bg: "linear-gradient(90deg, #ffffff 40%, #ff7700 40%, #ff7700 60%, #ffffff 60%)" },
+                    { id: "O",  name: "Solid Orange", bg: "#ff7700" },
+                    { id: "WG", name: "White-Green",  bg: "linear-gradient(90deg, #ffffff 40%, #00cc44 40%, #00cc44 60%, #ffffff 60%)" },
+                    { id: "BL", name: "Solid Blue",   bg: "#0066ff" },
+                    { id: "WBL",name: "White-Blue",   bg: "linear-gradient(90deg, #ffffff 40%, #0066ff 40%, #0066ff 60%, #ffffff 60%)" },
+                    { id: "G",  name: "Solid Green",  bg: "#00cc44" },
+                    { id: "WBR",name: "White-Brown",  bg: "linear-gradient(90deg, #ffffff 40%, #8b4513 40%, #8b4513 60%, #ffffff 60%)" },
+                    { id: "BR", name: "Solid Brown",  bg: "#8b4513" }
+                ];
+                this.wirePalette = [];
+
+                this.standards = {
+                    T568B: ["WO", "O", "WG", "BL", "WBL", "G", "WBR", "BR"],
+                    T568A: ["WG", "G", "WO", "BL", "WBL", "O", "WBR", "BR"]
+                };
+
+                // Motherboard Hardware Database
+                this.moboData = [
+                    { id: "cpu_socket", name: "CPU Socket", desc: "Houses the processor and connects it directly to the motherboard." },
+                    { id: "dimm_slots", name: "DIMM Slots (RAM)", desc: "Holds system memory modules for high-speed volatile data access." },
+                    { id: "pcie_x16", name: "PCIe x16 Slot", desc: "High-bandwidth expansion slot typically used for discrete graphics cards." },
+                    { id: "atx_power", name: "24-Pin ATX Power Connector", desc: "Delivers main electrical power from the power supply unit (PSU) to the board." },
+                    { id: "cpu_power", name: "8-Pin CPU Power (EPS)", desc: "Provides dedicated power lines specifically to the CPU power delivery VRMs." },
+                    { id: "sata_ports", name: "SATA Connectors", desc: "Connects traditional 2.5/3.5-inch hard drives and SSDs via SATA data cables." },
+                    { id: "m2_slot", name: "M.2 NVMe Slot", desc: "Compact slot for ultra-fast solid-state drives using PCIe lanes directly." },
+                    { id: "cmos_battery", name: "CMOS Battery (CR2032)", desc: "Maintains real-time system clock and hardware BIOS settings when unplugged." },
+                    { id: "vrm_heatsink", name: "VRM Heatsink", desc: "Cools the voltage regulator modules delivering stable voltage to the CPU." },
+                    { id: "front_panel", name: "Front Panel Headers", desc: "Connects chassis power buttons, reset switches, and status LEDs." },
+                    { id: "chipset", name: "Motherboard Chipset", desc: "Manages communications between the CPU, PCIe lanes, storage, and I/O devices." },
+                    { id: "io_shield", name: "Rear I/O Panel Ports", desc: "External connectivity area for USB, Ethernet, audio jacks, and video outputs." }
+                ];
+
+                this.selectedMoboPart = null;
+                this.selectedMoboDesc = null;
+                this.moboMatches = {};
+                this.shuffledParts = [];
+                this.shuffledDescs = [];
+
+                // Software Concept Database
+                this.softwareData = [
+                    { id: "os", name: "Operating System (OS)", desc: "Manages hardware resources and provides core system services for application software." },
+                    { id: "driver", name: "Device Driver", desc: "Specialized software that enables the OS to communicate directly with hardware components." },
+                    { id: "compiler", name: "Compiler", desc: "Translates high-level source code (e.g., C++, Java) into machine-executable binary code." },
+                    { id: "dbms", name: "DBMS", desc: "Software designed to store, manage, query, and retrieve structured data in databases." },
+                    { id: "hypervisor", name: "Hypervisor", desc: "Software or firmware that creates, runs, and manages virtual machines (VMs)." },
+                    { id: "ide", name: "IDE", desc: "Development toolkit combining a code editor, compiler, and debugger in a single GUI." },
+                    { id: "firmware", name: "Firmware", desc: "Low-level software permanently programmed into a hardware device's read-only memory." },
+                    { id: "antivirus", name: "Antivirus / Security", desc: "Utility software that scans, detects, and isolates malicious threats on a system." }
+                ];
+
+                this.selectedSoftPart = null;
+                this.selectedSoftDesc = null;
+                this.softMatches = {};
+                this.shuffledSoftParts = [];
+                this.shuffledSoftDescs = [];
+
+                this.rufusPuzzles = [
+                    { word: "ISO", clue: "The disk image file format used as the source when creating bootable media in Rufus." },
+                    { word: "UEFI", clue: "Modern motherboard firmware standard replacing legacy BIOS, required for Windows 11." },
+                    { word: "GPT", clue: "Partition scheme required when creating bootable drives for modern UEFI systems." },
+                    { word: "MBR", clue: "Legacy partition table layout compatible with older BIOS firmware systems." },
+                    { word: "FAT32", clue: "File system commonly used by Rufus for UEFI boot compatibility across platforms." },
+                    { word: "BOOTABLE", clue: "A drive state that allows a computer to start up an OS or installer directly from USB." },
+                    { word: "PERSISTENCE", clue: "Rufus feature allowing Linux Live USBs to save user data across reboots." },
+                    { word: "FORMAT", clue: "The process of wiping and preparing a USB drive's file system before writing files." },
+                    { word: "CHECKSUM", clue: "Hash value (SHA256/MD5) used in Rufus to verify an ISO download isn't corrupted." },
+                    { word: "BYPASS", clue: "Rufus feature that skips TPM 2.0 and Secure Boot checks for Windows 11 setup." }
+                ];
+                this.currentPuzzleIdx = 0;
+                this.puzzleQueue = [];
+                this.puzzleStreak = 0;
+
+                // Network Topology Sequence Test Data
+                this.topoTestSteps = [
+                    { id: 1, title: "1. Tooling & Cable Preparation", desc: "Gather crimping tools, punch-down tools, and fabricate straight-through cables (T568B standard)." },
+                    { id: 2, title: "2. Station Termination", desc: "Punch down Ethernet cabling into patch panel keystone jacks and terminate opposite ends with RJ45 connectors." },
+                    { id: 3, title: "3. Intermediate Switch Patching", desc: "Connect patch panel ports directly to the local Managed Switch ports using short patch cords." },
+                    { id: 4, title: "4. Gateway Uplink Integration", desc: "Connect an uplink cable from the Switch directly to the Core Router's internal gateway port." },
+                    { id: 5, title: "5. Continuity & IP Validation", desc: "Power up network hardware, verify physical LED link status, and run ping diagnostic tests." }
+                ];
+                this.topoCurrentOrder = [];
+                this.draggedTopoIdx = null;
+
+                this.init();
+            }
+
+            init() {
+                this.shuffleRJ45Palette();
+                this.setupMoboMatchData();
+                this.setupSoftwareMatchData();
+                this.setupRufusPuzzles();
+                this.setupTopoTest();
+                this.fetchLeaderboard();
+                this.renderRJ45Module();
+                this.renderMoboMatchModule();
+                this.renderSoftwareMatchModule();
+            }
+
+            // Universal Reusable Matching Helper Logic
+            checkMatch(selectedId, targetId, onSuccess, onError) {
+                if (!selectedId || !targetId) return false;
+                if (selectedId === targetId) {
+                    if (typeof onSuccess === 'function') onSuccess(selectedId);
+                    return true;
+                } else {
+                    if (typeof onError === 'function') onError(selectedId, targetId);
+                    return false;
+                }
+            }
+
+            shuffleArray(arr) {
+                let copy = [...arr];
+                for (let i = copy.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [copy[i], copy[j]] = [copy[j], copy[i]];
+                }
+                return copy;
+            }
+
+            // --- MOTHERBOARD MATCH LOGIC ---
+            setupMoboMatchData() {
+                this.shuffledParts = this.shuffleArray(this.moboData);
+                this.shuffledDescs = this.shuffleArray(this.moboData);
+                this.selectedMoboPart = null;
+                this.selectedMoboDesc = null;
+                this.moboMatches = {};
+            }
+
+            renderMoboMatchModule() {
+                const partsContainer = document.getElementById("moboPartsList");
+                const descsContainer = document.getElementById("moboDescsList");
+                if (!partsContainer || !descsContainer) return;
+
+                partsContainer.innerHTML = "<div style='font-size:12px; color:var(--gh-cyan); margin-bottom:10px; font-weight:bold; letter-spacing:0.5px;'>MOTHERBOARD COMPONENTS</div>";
+                descsContainer.innerHTML = "<div style='font-size:12px; color:var(--gh-cyan); margin-bottom:10px; font-weight:bold; letter-spacing:0.5px;'>FUNCTIONS & DEFINITIONS</div>";
+
+                this.shuffledParts.forEach(item => {
+                    const isMatched = !!this.moboMatches[item.id];
+                    const isSelected = this.selectedMoboPart === item.id;
+
+                    const div = document.createElement("div");
+                    div.className = `mobo-item ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`;
+                    div.textContent = `${isMatched ? '✅ ' : ''}${item.name}`;
+                    div.onclick = () => {
+                        if (isMatched) return;
+                        this.selectedMoboPart = isSelected ? null : item.id;
+                        this.checkMoboMatchPair();
+                        this.renderMoboMatchModule();
+                    };
+                    partsContainer.appendChild(div);
+                });
+
+                this.shuffledDescs.forEach(item => {
+                    const isMatched = Object.values(this.moboMatches).includes(item.id);
+                    const isSelected = this.selectedMoboDesc === item.id;
+
+                    const div = document.createElement("div");
+                    div.className = `mobo-item ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`;
+                    div.textContent = `${isMatched ? '✅ ' : ''}${item.desc}`;
+                    div.onclick = () => {
+                        if (isMatched) return;
+                        this.selectedMoboDesc = isSelected ? null : item.id;
+                        this.checkMoboMatchPair();
+                        this.renderMoboMatchModule();
+                    };
+                    descsContainer.appendChild(div);
+                });
+            }
+
+            checkMoboMatchPair() {
+                if (this.selectedMoboPart && this.selectedMoboDesc) {
+                    this.checkMatch(
+                        this.selectedMoboPart,
+                        this.selectedMoboDesc,
+                        (id) => {
+                            this.moboMatches[id] = id;
+                            this.addPoints(50);
+                            if (Object.keys(this.moboMatches).length === this.moboData.length) {
+                                setTimeout(() => alert("🎉 AMAZING! You matched all motherboard components correctly! +100 Bonus PTS"), 100);
+                                this.addPoints(100);
+                            }
+                        },
+                        () => alert("❌ Incorrect match! Try again.")
+                    );
+                    this.selectedMoboPart = null;
+                    this.selectedMoboDesc = null;
+                }
+            }
+
+            resetMoboMatch() {
+                this.setupMoboMatchData();
+                this.renderMoboMatchModule();
+            }
+
+            // --- SOFTWARE MATCH LOGIC ---
+            setupSoftwareMatchData() {
+                this.shuffledSoftParts = this.shuffleArray(this.softwareData);
+                this.shuffledSoftDescs = this.shuffleArray(this.softwareData);
+                this.selectedSoftPart = null;
+                this.selectedSoftDesc = null;
+                this.softMatches = {};
+            }
+
+            renderSoftwareMatchModule() {
+                const partsContainer = document.getElementById("softPartsList");
+                const descsContainer = document.getElementById("softDescsList");
+                if (!partsContainer || !descsContainer) return;
+
+                partsContainer.innerHTML = "<div style='font-size:12px; color:var(--gh-cyan); margin-bottom:10px; font-weight:bold; letter-spacing:0.5px;'>SOFTWARE TYPES & TOOLS</div>";
+                descsContainer.innerHTML = "<div style='font-size:12px; color:var(--gh-cyan); margin-bottom:10px; font-weight:bold; letter-spacing:0.5px;'>FUNCTIONS & DEFINITIONS</div>";
+
+                this.shuffledSoftParts.forEach(item => {
+                    const isMatched = !!this.softMatches[item.id];
+                    const isSelected = this.selectedSoftPart === item.id;
+
+                    const div = document.createElement("div");
+                    div.className = `mobo-item ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`;
+                    div.textContent = `${isMatched ? '✅ ' : ''}${item.name}`;
+                    div.onclick = () => {
+                        if (isMatched) return;
+                        this.selectedSoftPart = isSelected ? null : item.id;
+                        this.checkSoftwareMatchPair();
+                        this.renderSoftwareMatchModule();
+                    };
+                    partsContainer.appendChild(div);
+                });
+
+                this.shuffledSoftDescs.forEach(item => {
+                    const isMatched = Object.values(this.softMatches).includes(item.id);
+                    const isSelected = this.selectedSoftDesc === item.id;
+
+                    const div = document.createElement("div");
+                    div.className = `mobo-item ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}`;
+                    div.textContent = `${isMatched ? '✅ ' : ''}${item.desc}`;
+                    div.onclick = () => {
+                        if (isMatched) return;
+                        this.selectedSoftDesc = isSelected ? null : item.id;
+                        this.checkSoftwareMatchPair();
+                        this.renderSoftwareMatchModule();
+                    };
+                    descsContainer.appendChild(div);
+                });
+            }
+
+            checkSoftwareMatchPair() {
+                if (this.selectedSoftPart && this.selectedSoftDesc) {
+                    this.checkMatch(
+                        this.selectedSoftPart,
+                        this.selectedSoftDesc,
+                        (id) => {
+                            this.softMatches[id] = id;
+                            this.addPoints(50);
+                            if (Object.keys(this.softMatches).length === this.softwareData.length) {
+                                setTimeout(() => alert("🎉 EXCELLENT! You matched all software categories correctly! +100 Bonus PTS"), 100);
+                                this.addPoints(100);
+                            }
+                        },
+                        () => alert("❌ Incorrect match! Try again.")
+                    );
+                    this.selectedSoftPart = null;
+                    this.selectedSoftDesc = null;
+                }
+            }
+
+            resetSoftwareMatch() {
+                this.setupSoftwareMatchData();
+                this.renderSoftwareMatchModule();
+            }
+
+            // --- RJ45 MODULE LOGIC ---
+            shuffleRJ45Palette() {
+                this.wirePalette = this.shuffleArray(this.baseWirePalette);
+            }
+
+            rescrambleRJ45() {
+                this.shuffleRJ45Palette();
+                this.clearRJ45();
+            }
+
+            renderRJ45Module() {
+                const channelsContainer = document.getElementById("rj45Channels");
+                const paletteContainer = document.getElementById("wirePalette");
+                if (!channelsContainer || !paletteContainer) return;
+
+                channelsContainer.innerHTML = "";
+                for (let i = 0; i < 8; i++) {
+                    const slot = document.createElement("div");
+                    slot.className = "rj45-slot";
+                    slot.dataset.pinIndex = i;
+
+                    slot.onclick = () => {
+                        if (this.selectedWireId) {
+                            this.rj45Slots[i] = this.selectedWireId;
+                            this.renderRJ45Module();
+                        } else if (this.rj45Slots[i]) {
+                            this.rj45Slots[i] = null;
+                            this.renderRJ45Module();
+                        }
+                    };
+
+                    slot.ondragover = (e) => { e.preventDefault(); slot.classList.add("drag-over"); };
+                    slot.ondragleave = () => slot.classList.remove("drag-over");
+                    slot.ondrop = (e) => {
+                        e.preventDefault();
+                        slot.classList.remove("drag-over");
+                        const wireId = e.dataTransfer.getData("wireId");
+                        if (wireId) {
+                            this.rj45Slots[i] = wireId;
+                            this.renderRJ45Module();
+                        }
+                    };
+
+                    const wireId = this.rj45Slots[i];
+                    if (wireId) {
+                        const wireObj = this.baseWirePalette.find(w => w.id === wireId);
+                        const wireEl = document.createElement("div");
+                        wireEl.className = "wire-pill";
+                        wireEl.style.background = wireObj.bg;
+                        wireEl.style.height = "100%";
+                        wireEl.style.width = "100%";
+                        wireEl.innerHTML = `<div class="wire-label">${i+1}</div>`;
+                        slot.appendChild(wireEl);
+                    }
+
+                    channelsContainer.appendChild(slot);
+                }
+
+                paletteContainer.innerHTML = "";
+                this.wirePalette.forEach(wire => {
+                    const wirePill = document.createElement("div");
+                    const isSelected = this.selectedWireId === wire.id;
+                    wirePill.className = `wire-pill ${isSelected ? 'selected' : ''}`;
+                    wirePill.style.background = wire.bg;
+                    
+                    wirePill.draggable = true;
+                    wirePill.ondragstart = (e) => e.dataTransfer.setData("wireId", wire.id);
+
+                    wirePill.onclick = () => {
+                        this.selectedWireId = isSelected ? null : wire.id;
+                        this.renderRJ45Module();
+                    };
+
+                    wirePill.innerHTML = `<div class="wire-label">${wire.id}</div>`;
+                    paletteContainer.appendChild(wirePill);
+                });
+
+                const statusEl = document.getElementById("paletteStatus");
+                if (statusEl) {
+                    if (this.selectedWireId) {
+                        const selectedObj = this.baseWirePalette.find(w => w.id === this.selectedWireId);
+                        statusEl.innerHTML = `<span style="color:var(--gh-emerald);">SELECT PIN (1-8) TO PLACE: ${selectedObj.name.toUpperCase()}</span>`;
+                    } else {
+                        statusEl.textContent = "SCRAMBLED WIRE PALETTE (CLICK OR DRAG A COLOR)";
+                    }
+                }
+            }
+
+            setTargetStandard(std) {
+                this.targetStandard = std;
+                alert(`Target standard set to: ${std}`);
+            }
+
+            clearRJ45() {
+                this.rj45Slots = Array(8).fill(null);
+                this.selectedWireId = null;
+                this.renderRJ45Module();
+            }
+
+            verifyRJ45() {
+                const correctOrder = this.standards[this.targetStandard];
+                let isCorrect = true;
+
+                for (let i = 0; i < 8; i++) {
+                    if (this.rj45Slots[i] !== correctOrder[i]) {
+                        isCorrect = false;
+                        break;
+                    }
+                }
+
+                if (isCorrect) {
+                    this.addPoints(200);
+                    alert(`🎉 EXCELLENT! Pinout perfectly matches standard ${this.targetStandard}! +200 PTS`);
+                } else {
+                    alert(`❌ Wiring mismatch for ${this.targetStandard}!\n\nExpected Order:\nPin 1-8: ${correctOrder.join(", ")}`);
+                }
+            }
+
+            // --- RUFUS PUZZLE LOGIC ---
+            setupRufusPuzzles() {
+                this.puzzleQueue = this.shuffleArray(this.rufusPuzzles).slice(0, 5);
+                this.currentPuzzleIdx = 0;
+                this.puzzleStreak = 0;
+            }
+
+            scrambleWord(word) {
+                let scrambled = word;
+                while (scrambled === word && word.length > 1) {
+                    scrambled = word.split('').sort(() => Math.random() - 0.5).join('');
+                }
+                return scrambled;
+            }
+
+            renderRufusPuzzle() {
+                if (this.currentPuzzleIdx >= this.puzzleQueue.length) {
+                    alert(`🎉 ALL PUZZLES COMPLETED! Final Streak: ${this.puzzleStreak} | +150 Bonus PTS`);
+                    this.addPoints(150);
+                    this.setupRufusPuzzles();
+                }
+
+                const item = this.puzzleQueue[this.currentPuzzleIdx];
+                document.getElementById("rufusPuzzleIndex").textContent = this.currentPuzzleIdx + 1;
+                document.getElementById("rufusPuzzleTotal").textContent = this.puzzleQueue.length;
+                document.getElementById("rufusPuzzleStreak").textContent = `Streak: ${this.puzzleStreak}`;
+                document.getElementById("rufusClue").textContent = item.clue;
+                document.getElementById("rufusScrambled").textContent = this.scrambleWord(item.word);
+                
+                const input = document.getElementById("rufusInput");
+                if (input) {
+                    input.value = "";
+                    input.focus();
+                }
+            }
+
+            checkRufusPuzzle() {
+                const input = document.getElementById("rufusInput");
+                const userAns = input.value.trim().toUpperCase();
+                const currentItem = this.puzzleQueue[this.currentPuzzleIdx];
+
+                if (!userAns) return;
+
+                if (userAns === currentItem.word) {
+                    this.puzzleStreak++;
+                    this.addPoints(50);
+                    alert(`✅ CORRECT! "${currentItem.word}" is right! +50 PTS`);
+                    this.currentPuzzleIdx++;
+                    this.renderRufusPuzzle();
+                } else {
+                    alert(`❌ Incorrect! Try again or re-read the clue.`);
+                    input.value = "";
+                    input.focus();
+                }
+            }
+
+            resetRufusPuzzle() {
+                this.setupRufusPuzzles();
+                this.renderRufusPuzzle();
+            }
+
+            // --- NETWORK TOPOLOGY SEQUENCING TEST LOGIC ---
+            setupTopoTest() {
+                this.scrambleTopoTest();
+            }
+
+            scrambleTopoTest() {
+                let isSame = true;
+                while (isSame) {
+                    this.topoCurrentOrder = this.shuffleArray(this.topoTestSteps);
+                    isSame = this.topoCurrentOrder.every((step, idx) => step.id === this.topoTestSteps[idx].id);
+                }
+                this.renderTopoTestBoard();
+            }
+
+            moveTopoStep(fromIdx, toIdx) {
+                if (toIdx < 0 || toIdx >= this.topoCurrentOrder.length) return;
+                const moved = this.topoCurrentOrder.splice(fromIdx, 1)[0];
+                this.topoCurrentOrder.splice(toIdx, 0, moved);
+                this.renderTopoTestBoard();
+            }
+
+            renderTopoTestBoard() {
+                const board = document.getElementById("topoTestBoard");
+                if (!board) return;
+                board.innerHTML = "";
+
+                this.topoCurrentOrder.forEach((step, idx) => {
+                    const card = document.createElement("div");
+                    card.className = "topo-step-card";
+                    card.draggable = true;
+                    card.dataset.index = idx;
+
+                    card.ondragstart = (e) => {
+                        this.draggedTopoIdx = idx;
+                        card.classList.add("dragging");
+                    };
+                    card.ondragover = (e) => {
+                        e.preventDefault();
+                        card.classList.add("drag-over");
+                    };
+                    card.ondragleave = () => card.classList.remove("drag-over");
+                    card.ondrop = (e) => {
+                        e.preventDefault();
+                        card.classList.remove("drag-over");
+                        if (this.draggedTopoIdx !== null && this.draggedTopoIdx !== idx) {
+                            this.moveTopoStep(this.draggedTopoIdx, idx);
+                        }
+                    };
+                    card.ondragend = () => {
+                        card.classList.remove("dragging");
+                        this.draggedTopoIdx = null;
+                    };
+
+                    card.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div class="topo-step-num">${idx + 1}</div>
+                            <div>
+                                <div style="font-weight:bold; color:var(--gh-cyan); font-size:14px;">${step.title}</div>
+                                <div style="font-size:12px; color:var(--gh-text-muted); margin-top:2px;">${step.desc}</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:4px; flex-shrink:0;">
+                            <button class="gh-btn" style="padding:4px 10px; margin:0; font-size:12px;" onclick="gameHub.moveTopoStep(${idx}, ${idx - 1})">▲</button>
+                            <button class="gh-btn" style="padding:4px 10px; margin:0; font-size:12px;" onclick="gameHub.moveTopoStep(${idx}, ${idx + 1})">▼</button>
+                        </div>
+                    `;
+
+                    board.appendChild(card);
+                });
+            }
+
+            verifyTopoTest() {
+                let isCorrect = true;
+                this.topoCurrentOrder.forEach((step, idx) => {
+                    if (step.id !== this.topoTestSteps[idx].id) {
+                        isCorrect = false;
+                    }
+                });
+
+                if (isCorrect) {
+                    this.addPoints(200);
+                    alert("🎉 PERFECT! Network physical deployment topology sequence is 100% correct! +200 PTS");
+                } else {
+                    alert("❌ Sequence Incorrect! Review the deployment order from cabling to switch patching & router uplink, then try again.");
+                }
+            }
+
+            // --- NAVIGATION STAGE SWITCHER ---
+            switchStage(stageId) {
+                document.querySelectorAll(".gh-stage").forEach(s => s.style.display = "none");
+                document.querySelectorAll(".gh-tab").forEach(t => t.classList.remove("active"));
+
+                document.getElementById(`stage-${stageId}`).style.display = "block";
+                const activeTab = document.getElementById(`tab-${stageId}`);
+                if (activeTab) activeTab.classList.add("active");
+
+                if (stageId === 'rufus') {
+                    if (!this.puzzleQueue.length) this.setupRufusPuzzles();
+                    this.renderRufusPuzzle();
+                } else if (stageId === 'topotest') {
+                    this.renderTopoTestBoard();
+                }
+            }
+
+            addPoints(pts) {
+                this.score += pts;
+                document.getElementById("ghScore").textContent = this.score;
+            }
+
+            async fetchLeaderboard() {
+                try {
+                    let res = await fetch(this.restApiUrl);
+                    if (res.ok) {
+                        let data = await res.json();
+                        this.renderLeaderboard(data);
+                        return;
+                    }
+                } catch (e) {}
+                this.renderLeaderboard(this.leaderboardData);
+            }
+
+            async submitScore() {
+                const payload = { name: this.playerHandle, score: this.score, status: "Verified" };
+                this.leaderboardData.push(payload);
+                
+                try {
+                    await fetch(this.restApiUrl, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                } catch(e) {}
+                this.fetchLeaderboard();
+            }
+
+            renderLeaderboard(data) {
+                const container = document.getElementById("ghLeaderboard");
+                if (!container) return;
+                
+                let sorted = [...data].sort((a, b) => b.score - a.score).slice(0, 5);
+                container.innerHTML = sorted.map((p, i) => 
+                    `<div style="padding: 4px 0; display:flex; justify-content:space-between; max-width:300px;">
+                        <span>#${i+1} <strong>${p.name}</strong></span>
+                        <span style="color:var(--gh-cyan); font-weight:bold;">${p.score} PTS</span>
+                    </div>`
+                ).join("");
+            }
+        }
+
+        // Initialize on page load
+        initUserSession();
+        const gameHub = new ITGameHub();
+    </script>
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Show the welcome name if the user already signed in on the Home page (added) */
+    (function () {
+        var chip = document.getElementById("navbarWelcome");
+        if (chip) {
+            try {
+                chip.textContent = localStorage.getItem("userNickname") || "Guest";
+            } catch (e) {}
+        }
+    })();
+
+    /* Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+</body>
+</html>

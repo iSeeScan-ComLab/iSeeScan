@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>iSeeScan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+    <!-- EmailJS SDK and OTP Module -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="emailjs-otp.js" defer></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            color: white;
+            background: transparent;
+            overflow-x: hidden;
+            padding-top: 78px;
+        }
+
+        .background-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(6, 11, 25, 0.94) 30%, rgba(0, 20, 50, 0.88) 100%);
+            z-index: -1;
+        }
+
+        header {
+            text-align: center;
+            padding: 66px 20px 50px;
+            animation: fadeSlideUp 0.7s ease both;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header h2#welcome:not(:empty) {
+            display: inline-block;
+            font-size: 12.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.25);
+            padding: 7px 20px;
+            border-radius: 50px;
+            margin: 0 0 20px 0;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin: 10px 0;
+            letter-spacing: 0.4px;
+        }
+
+        header > p {
+            color: #8fa0ba;
+            font-size: clamp(14px, 2vw, 17px);
+            letter-spacing: 0.3px;
+            max-width: 560px;
+            margin: 12px auto 0;
+        }
+
+        .logo {
+            font-size: 55px;
+            filter: drop-shadow(0 0 10px #0077ff);
+        }
+
+        /* --- TOP NAVIGATION BAR --- */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .logo {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        /* --- THREE-LINE HAMBURGER BUTTON (RIGHT-ALIGNED) --- */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        /* Hamburger to X Transform Animation */
+        .menu-btn.open span:nth-child(1) {
+            transform: translateY(10.5px) rotate(45deg);
+        }
+        .menu-btn.open span:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-btn.open span:nth-child(3) {
+            transform: translateY(-10.5px) rotate(-45deg);
+        }
+
+        /* --- BACKDROP OVERLAY --- */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- SLIDING SIDE NAVIGATION BAR (RIGHT SIDE) --- */
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+        }
+
+        .side-nav-drawer.active {
+            transform: translateX(0);
+        }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Nav Link Items */
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4deg);
+        }
+
+        /* Input Controls Inside Drawer */
+        .drawer-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #0a0f1d;
+            border: 1px solid #1a2333;
+            color: white;
+            font-size: 13px;
+            margin-top: 4px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .drawer-input:focus {
+            border-color: #00eaff;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.3);
+        }
+
+        .drawer-input.invalid {
+            border-color: #ff4d4d !important;
+            box-shadow: 0 0 8px rgba(255, 77, 77, 0.3) !important;
+        }
+
+        .drawer-input.valid {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.2) !important;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 11px;
+            display: block;
+            min-height: 14px;
+            margin-top: 2px;
+        }
+
+        .error-msg.match-success {
+            color: #00ff88;
+        }
+
+        /* --- OTP TOAST NOTIFICATION --- */
+        .otp-toast {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(13, 19, 33, 0.97);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: #00ff88;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            max-width: 90%;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .otp-toast.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- OTP MODAL OVERLAY --- */
+        .otp-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2001;
+        }
+
+        .otp-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(13, 19, 33, 0.97);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            border-radius: 18px;
+            padding: 30px 26px;
+            width: min(90%, 380px);
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 234, 255, 0.08);
+        }
+
+        .otp-box h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .otp-box p {
+            font-size: 13px;
+            color: #8fa0ba;
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+
+        .otp-box p span {
+            color: #00eaff;
+            font-weight: 600;
+        }
+
+        .otp-input-box {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #1a2333;
+            background: #0a0f1d;
+            color: #ffffff;
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 8px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .otp-input-box:focus {
+            border-color: #00bfff;
+            box-shadow: 0 0 12px rgba(0, 191, 255, 0.35);
+        }
+
+        .otp-error {
+            display: block;
+            font-size: 12px;
+            color: #ff6b6b;
+            min-height: 16px;
+            margin-bottom: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #00eaff;
+            border-radius: 8px;
+            background: transparent;
+            color: #00eaff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 234, 255, 0.15);
+        }
+
+        /* Categories Section Grid */
+        .categories {
+            width: min(95%, 1400px);
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(13, 19, 33, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            padding: clamp(20px, 4vw, 50px);
+            border-radius: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: .4s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,.6);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 234, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 15px rgba(0, 234, 255, 0.2);
+        }
+
+        .card-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 10px rgba(0, 234, 255, 0.5));
+        }
+
+        .card h2 {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 8px #00eaff;
+        }
+
+        .card p {
+            font-size: 16px;
+            color: #8fa0ba;
+        }
+
+        .card:nth-child(1) h2 { color: #00eaff; }
+        .card:nth-child(2) h2 { color: #0077ff; }
+        .card:nth-child(3) h2 { color: #ffffff; }
+        .card:nth-child(4) h2 { color: #00eaff; }
+        .card:nth-child(5) h2 { color: #0077ff; }
+        .card:nth-child(6) h2 { color: #ffffff; }
+
+        /* Cable Section */
+        .cable-section {
+            width: min(95%, 1000px);
+            margin: 50px auto;
+            text-align: center;
+            background: rgba(13, 19, 33, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            border-radius: 30px;
+            padding: 30px;
+        }
+
+        .cable-section h2 {
+            font-size: 35px;
+            color: #00eaff;
+        }
+
+        .cable-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 20px auto 0 auto;
+            overflow: hidden;
+            border-radius: 15px; 
+        }
+
+        .cable-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scale(1.35) translateX(-8%); 
+            transform-origin: center left;
+        }
+
+        .cable-part {
+            position: absolute;
+            cursor: pointer;
+            opacity: 0.15;
+            transition: all 0.2s ease;
+            background-color: #0077ff;
+            border-radius: 12px;
+        }
+
+        .cable-part:hover {
+            transform: scale(1.03);
+            opacity: 0.45;
+            box-shadow: 0 0 25px #00eaff;
+            outline: 2px solid #00eaff;
+        }
+
+        .top_rj45 { top: 18%; left: 8%; width: 55%; height: 38%; }
+        .bottom_rj45 { top: 56%; left: 8%; width: 55%; height: 38%; }
+
+        /* Motherboard Section */
+        .motherboard-section {
+            width: 90%;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .motherboard-section h2 {
+            font-size: 35px;
+            color: #00eaff;
+        }
+
+        .motherboard-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .motherboard-image {
+            width: 100%;
+            height: auto;
+        }
+
+        .part {
+            position: absolute;
+            cursor: pointer;
+            opacity: 0.15;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 234, 255, 0.4);
+        }
+
+        .part:hover {
+            transform: scale(1.01);
+            opacity: 0.5;
+            box-shadow: 0 0 25px #00eaff;
+            outline: 2px solid #0077ff;
+        }
+
+        .io_ports { top: 2%; left: 6%; width: 10%; height: 55%; background-color: lightblue; }
+        .cpu_socket { top: 15%; left: 43%; width: 17%; height: 33%; background-color: gold; }
+        .vrm_power_stages { top: 9%; left: 31%; width: 11%; height: 35%; background-color: orange; }
+        .ram_slots { top: 1%; left: 67%; width: 12%; height: 59%; background-color: green; }
+        .atx_power { top: 17%; left: 85%; width: 4%; height: 27%; background-color: yellow; }
+        .primary_gpu_slot { top: 59%; left: 21%; width: 35%; height: 6%; background-color: red; }
+        .chipset_heatsink { top: 62%; left: 61%; width: 13%; height: 22%; background-color: darkblue; }
+        .sata_ports { top: 54%; left: 83%; width: 6%; height: 29%; background-color: purple; }
+        .bios_cmos_battery { top: 67%; left: 11%; width: 8%; height: 12%; background-color: #ff6bff; }
+        .front_panel_header { top: 88%; left: 42%; width: 28%; height: 4%; background-color: cyan; }
+        .cpu_power_6pin { top: 2%; left: 23%; width: 6%; height: 6%; background-color: #ff3340; }
+        .cpu_fan_header { top: 4%; left: 59%; width: 5%; height: 5%; background-color: #33ff33; }
+        .pcie_x1_slots { top: 67%; left: 21%; width: 10%; height: 25%; background-color: #ffff33; }
+        .front_audio_header { top: 86%; left: 13%; width: 6%; height: 7%; background-color: #ff33ff; }
+        .sys_fan_bottom { top: 88%; left: 30%; width: 10%; height: 5%; background-color: #33ffff; }
+        .front_usb3_header { top: 87%; left: 76%; width: 10%; height: 6%; background-color: #ffaae0; }
+        .front_usb_c_header { top: 44%; left: 86%; width: 3%; height: 8%; background-color: #ff00ae; }
+
+        #partInfo {
+            margin-top: 20px;
+            padding: 25px;
+            background: rgba(13, 19, 33, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            border-radius: 20px;
+            color: white;
+            text-align: left;
+            width: min(100%, 1000px);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #partInfo h3 {
+            color: #00eaff;
+            margin-top: 0;
+            font-size: 24px;
+            border-bottom: 2px solid rgba(0, 119, 255, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .component-list {
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .component-item {
+            background: rgba(0, 234, 255, 0.06);
+            border-left: 4px solid #00eaff;
+            padding: 12px;
+            border-radius: 0 10px 10px 0;
+            border: 1px solid rgba(0, 234, 255, 0.1);
+        }
+
+        .component-img {
+            display: block;
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            cursor: zoom-in;
+            transition: transform 0.2s;
+        }
+
+        .component-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Contact & Forms */
+        .fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: row-reverse;
+        }
+
+        .stars input { display: none; }
+
+        .stars label {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input:checked ~ label {
+            color: #00eaff;
+            text-shadow: 0 0 10px #00eaff;
+        }
+
+        .feedback-text, .feedback-email {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,234,255,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            outline: none;
+            margin-top: 8px;
+        }
+
+        .feedback-text { height: 80px; resize: none; }
+
+        .submit-btn {
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            border: none;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 0 15px #00eaff;
+        }
+
+        /* Tablet Layout */
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        /* Mobile Layout */
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+            .categories { grid-template-columns: 1fr; }
+            .motherboard-container { width: 700px; }
+            .motherboard-section { overflow-x: auto; }
+            .otp-input-box { font-size: 18px; letter-spacing: 6px; }
+
+            body { padding-top: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .logo { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+<!-- TOP NAVIGATION BAR -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="logo">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link active">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <button type="button" class="navbar-account-btn" onclick="toggleOverlay()" title="Open menu & account">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleOverlay()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleOverlay()"></div>
+
+<!-- OTP-Sent Notification Toast -->
+<div id="otpToast" class="otp-toast">📩 OTP code sent to your Gmail!</div>
+
+<!-- RIGHT SLIDING NAVIGATION DRAWER -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    
+    <!-- SECTION 0: ACCOUNT / LOGIN OPTION -->
+    <div id="accountSection" class="account-card" style="background: rgba(10, 15, 29, 0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(0, 234, 255, 0.2); margin-bottom: 20px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="color: #8fa0ba; font-size: 12px;">Logged in as:</span>
+                <h4 id="userDisplay" style="color: #00eaff; margin: 0; font-size: 16px;">Guest</h4>
+            </div>
+            <button id="authBtn" type="button" style="padding: 6px 14px; background: linear-gradient(90deg, #00eaff, #0077ff); border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; font-size: 13px;">
+                Sign In
+            </button>
+        </div>
+
+        <div id="navLoginModal" style="display: none; margin-top: 15px; border-top: 1px solid rgba(0,234,255,0.15); padding-top: 15px;">
+            <h4 id="navModalTitle" style="color: #00eaff; margin-bottom: 10px;">Account Login</h4>
+            <div id="navAuthAlert" style="display: none; background: rgba(255, 77, 77, 0.15); border: 1px solid #ff4d4d; color: #ff6b6b; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 10px;"></div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Email Address</label>
+                <input type="email" id="navEmail" class="drawer-input" placeholder="user@gmail.com">
+                <span id="navEmailError" class="error-msg"></span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Username</label>
+                <input type="text" id="navUsername" class="drawer-input" placeholder="Enter your username">
+                <span id="navUsernameError" class="error-msg"></span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Password</label>
+                <div style="position: relative; width: 100%;">
+                    <input type="password" id="navPassword" class="drawer-input" placeholder="Enter your password" style="padding-right: 35px;">
+                    <span id="toggleNavPasswordBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 14px; opacity: 0.7;">⌣</span>
+                </div>
+                <span id="navPasswordError" class="error-msg"></span>
+            </div>
+
+            <div id="navConfirmPassGroup" style="margin-bottom: 8px; display: none;">
+                <label style="font-size: 12px; color: #b0c4de;">Confirm Password</label>
+                <div style="position: relative; width: 100%;">
+                    <input type="password" id="navConfirmPassword" class="drawer-input" placeholder="Re-enter your password" style="padding-right: 35px;">
+                    <span id="toggleNavConfirmPasswordBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 14px; opacity: 0.7;">⌣</span>
+                </div>
+                <span id="navConfirmPasswordError" class="error-msg"></span>
+            </div>
+
+            <div id="navForgotPassGroup" style="text-align: right; margin-top: -4px; margin-bottom: 10px;">
+                <a href="javascript:void(0)" id="forgotPasswordBtn" style="color: #00eaff; font-size: 11px; text-decoration: none;">Forgot Password?</a>
+            </div>
+
+            <button id="navSubmitBtn" type="button" style="width: 100%; padding: 10px; background: linear-gradient(90deg, #00eaff, #0077ff); border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">Log In</button>
+
+            <div style="margin-top: 12px; text-align: center; font-size: 12px; color: #8fa0ba;">
+                <span id="navToggleText">Don't have an account?</span> 
+                <a id="navToggleBtn" href="javascript:void(0)" style="color: #00eaff; font-weight: bold; text-decoration: none;">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: QUICK NAVIGATION -->
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item active">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <!-- SECTION 2: CONTACT & SOCIAL -->
+    <h2>📱 Contact & Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <!-- SECTION 3: FEEDBACK & RATING FORM -->
+    <h3 style="color: #00eaff; margin-bottom: 5px;">Rate Our Page</h3>
+    
+    <form id="feedbackForm" novalidate>
+        <div class="rating-box">
+            <div class="stars">
+                <input type="radio" id="star5" name="rating" value="5">
+                <label for="star5">★</label>
+                <input type="radio" id="star4" name="rating" value="4">
+                <label for="star4">★</label>
+                <input type="radio" id="star3" name="rating" value="3">
+                <label for="star3">★</label>
+                <input type="radio" id="star2" name="rating" value="2">
+                <label for="star2">★</label>
+                <input type="radio" id="star1" name="rating" value="1">
+                <label for="star1">★</label>
+            </div>
+            <span id="starRatingError" class="error-msg" style="text-align: center;"></span>
+
+            <input type="email" id="sender_email" name="sender_email" class="feedback-email" placeholder="Your email address">
+            <span id="feedbackEmailError" class="error-msg"></span>
+
+            <textarea id="feedbackComment" name="feedback_comment" class="feedback-text" placeholder="Write your review or comment..." required></textarea>
+            <span id="feedbackCommentError" class="error-msg"></span>
+
+            <button type="submit" class="submit-btn">Submit Review</button>
+        </div>
+    </form> 
+</div>
+
+<!-- OTP Verification Modal -->
+<div id="otpModal" class="otp-overlay">
+  <div class="otp-box">
+    <h2>Verify Your Email</h2>
+    <p>We just sent a 6-digit code to <span id="otpRecipientEmail"></span>. Enter it below to finish creating your account.</p>
+    <input id="otpInput" class="otp-input-box" type="text" inputmode="numeric" maxlength="6" placeholder="------" autocomplete="one-time-code">
+    <span id="otpError" class="otp-error"></span>
+    <button type="button" id="verifyOtpBtn" class="btn-primary">Verify & Complete Sign Up</button>
+    <button type="button" id="resendOtpBtn" class="btn-secondary">Didn't receive code? Resend OTP</button>
+  </div>
+</div>
+
+<header>
+    <h2 id="welcome"></h2>
+    <h1><span class="logo">🔍</span> iSeeScan</h1>
+    <p>School Computer Laboratory Troubleshooting System</p>
+</header>
+
+<div class="categories">
+    <a href="software.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">💾</div>
+            <h2>Software Problems</h2>
+            <p>Issues with the operating system, programs, or settings</p>
+        </div>
+    </a>
+    <a href="hardware.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h2>Hardware Problems</h2>
+            <p>Physical parts that are outdated, damaged, or failing</p>
+        </div>
+    </a>
+    <a href="user.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">👤</div>
+            <h2>User Related Problems</h2>
+            <p>Problems caused by how students/teachers use the PC</p>
+        </div>
+    </a>
+    <a href="network.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">🌐</div>
+            <h2>Network & Maintenance</h2>
+            <p>Issues from lack of upkeep or connectivity</p>
+        </div>
+    </a>
+    <a href="report_page.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">📊</div>
+            <h2>Reporting Page</h2>
+            <p>Report hardware or software system failures for instant AI diagnosis</p>
+        </div>
+    </a>
+    <a href="rufus-tutorial.html" style="text-decoration:none;color:white;">
+        <div class="card">
+            <div class="card-icon">💿</div>
+            <h2>Rufus Deployment Center</h2>
+            <p>Laboratory setup, ISO flashing documentation, and troubleshooting guide</p>
+        </div>
+    </a>
+</div>
+
+<section class="cable-section">
+    <h2>🔌 Network Connectivity Guide</h2>
+    <p>Click on the individual RJ45 connectors to open detailed technical guides.</p>
+    <div class="cable-container">
+        <img src="rj45-cable.png" class="cable-image" alt="RJ45 Network Cables">
+        <div class="cable-part top_rj45" onclick="window.location.href='cable-guide.html'"></div>
+        <div class="cable-part bottom_rj45" onclick="window.location.href='network-topology.html'"></div>
+    </div>
+</section>
+
+<section class="motherboard-section">
+    <h2>🖥️ Motherboard Parts Guide</h2>
+    <p>Click the highlighted visual blocks to learn what components plug into them.</p>
+
+    <div class="motherboard-container">
+        <img src="motherboard.png" class="motherboard-image" alt="Motherboard Layout">
+
+        <div class="part io_ports" onclick="showPart('I/O Ports')"></div>
+        <div class="part cpu_socket" onclick="showPart('CPU Socket')"></div>
+        <div class="part vrm_power_stages" onclick="showPart('VRM Power Stages')"></div>
+        <div class="part ram_slots" onclick="showPart('RAM Slots')"></div>
+        <div class="part atx_power" onclick="showPart('24-Pin ATX Power Connector')"></div>
+        <div class="part primary_gpu_slot" onclick="showPart('Primary GPU PCIe Slot')"></div>
+        <div class="part chipset_heatsink" onclick="showPart('Chipset Heatsink')"></div>
+        <div class="part sata_ports" onclick="showPart('SATA Ports')"></div>
+        <div class="part bios_cmos_battery" onclick="showPart('CMOS Battery')"></div>
+        <div class="part front_panel_header" onclick="showPart('Front Panel Headers')"></div>
+
+        <div class="part cpu_power_6pin" onclick="showPart('6-Pin CPU Power Connector')"></div>
+        <div class="part cpu_fan_header" onclick="showPart('CPU Fan Header')"></div>
+        <div class="part pcie_x1_slots" onclick="showPart('PCIe x1 Expansion Slots')"></div>
+        <div class="part front_audio_header" onclick="showPart('Front Panel Audio Header')"></div>
+        <div class="part sys_fan_bottom" onclick="showPart('System Fan Header')"></div>
+        
+        <div class="part front_usb3_header" onclick="showPart('Front Panel USB 3.0 Header')"></div>
+        <div class="part front_usb_c_header" onclick="showPart('Front Panel USB Type-C Header')"></div>
+    </div>
+
+    <div id="partInfo">
+        <h3>Interactive Guide</h3>
+        <p style="font-weight: bold; color: #00eaff; margin-bottom: 5px;">What is a Motherboard?</p>
+        <p style="margin-top: 0; color: #e5faff; font-size: 16px; line-height: 1.5;">The motherboard is the main printed circuit board (PCB) inside a computer. It serves as the central hub that connects and allows communication between the CPU, RAM, storage drives, graphics cards, and all other physical internal or external peripherals.</p>
+        <hr style="border: 0; border-top: 1px solid rgba(0, 234, 255, 0.2); margin: 15px 0;">
+        <p>Click a highlighted motherboard zone to view its details and see what components connect there.</p>
+    </div>
+</section>
+
+<div id="content"></div>
+
+<!-- Image Modal -->
+<div id="imageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; cursor:zoom-out;" onclick="this.style.display='none'">
+    <img id="modalImg" style="max-width:90%; max-height:90%; border-radius:10px; box-shadow: 0 0 30px rgba(0,234,255,0.5); border: 2px solid #00eaff;">
+</div>
+
+<script>
+    /* Open / Close Side Drawer Menu */
+    function toggleOverlay() {
+        const btn = document.getElementById("menuToggleBtn");
+        const drawer = document.getElementById("sideNavDrawer");
+        const overlay = document.getElementById("drawerOverlay");
+
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    function zoomImage(imgElement) {
+        let modal = document.getElementById("imageModal");
+        let modalImg = document.getElementById("modalImg");
+        modalImg.src = imgElement.src;   
+        modal.style.display = "flex";    
+    }
+
+    let user = localStorage.getItem("userNickname") || "Guest";
+    document.getElementById("welcome").innerHTML = "Welcome, " + user + "!";
+    const navbarWelcomeInit = document.getElementById("navbarWelcome");
+    if (navbarWelcomeInit) navbarWelcomeInit.textContent = user;
+
+    function showPart(part) {
+        let info = "";
+        let componentsHTML = "";
+        if (typeof currentSelectedPart === 'undefined') {
+            window.currentSelectedPart = "";
+        }
+
+        if (window.currentSelectedPart === part) {
+            window.currentSelectedPart = ""; 
+            document.getElementById("partInfo").innerHTML = `
+                <h3>Interactive Guide</h3>
+                <p style="font-weight: bold; color: #00eaff; margin-bottom: 5px;">What is a Motherboard?</p>
+                <p style="margin-top: 0; color: #e5faff; font-size: 16px; line-height: 1.5;">The motherboard is the main printed circuit board (PCB) inside a computer. It serves as the central hub that connects and allows communication between the CPU, RAM, storage drives, graphics cards, and all other physical internal or external peripherals.</p>
+                <hr style="border: 0; border-top: 1px solid rgba(0, 119, 255, 0.3); margin: 15px 0;">
+                <p style="color: #8fa0ba;">Click a highlighted motherboard zone to view its details and see what components connect there.</p>`;
+            return; 
+        }
+        window.currentSelectedPart = part;
+
+        if (part == "CPU Socket") {
+            info = "The central structural socket that connects the processor chip to the motherboard system.";
+            componentsHTML = `
+                <div class="component-item">
+                    <stroke>Processor (CPU)</stroke> The main brain of the computer (e.g., Intel Core i5/i7 or AMD Ryzen).
+                    <img src="images/cpu.png" class="component-img" alt="CPU" onclick="zoomImage(this)">
+                </div>
+                <div class="component-item">
+                    <stroke>Thermal Paste</stroke> Compound applied to top of CPU to transfer heat efficiently.
+                    <img src="images/thermalpaste.png" class="component-img" alt="Thermal Paste" onclick="zoomImage(this)">
+                </div>
+                <div class="component-item">
+                    <stroke>CPU Cooler / Heatsink</stroke> Mounted directly over the socket to prevent CPU overheating.
+                    <img src="images/cpu_cooler.png" class="component-img" alt="CPU Cooler" onclick="zoomImage(this)">
+                </div>`;
+        }
+        else if (part == "RAM Slots") {
+                info = "Memory slots designed to hold high-speed temporary system execution data sticks.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>DDR4 / DDR5 RAM Sticks</stroke> 
+                        Desktop random-access memory modules (DIMMs) to support active system applications.
+                        <img src="images/ram.png" class="component-img" alt="RAM Stick" onclick="zoomImage(this)">
+                        <img src="images/ddr4&ddr5.png" class="component-img" alt="DDR4 and DDR5 Comparison" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "Primary GPU PCIe Slot") {
+                info = "High-speed PCIe x16 expansion channel meant for heavy processing hardware interfaces.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Dedicated Graphics Card (GPU)</stroke> Hardware used to process display visuals, 3D modeling, or gaming.
+                        <img src="images/Dedicated_Graphics_Card.png" class="component-img" alt="Graphics Card" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "24-Pin ATX Power Connector") {
+                info = "The primary power distribution input portal running directly from the system power supply unit.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>24-Pin ATX Cable</stroke> The main power distribution cable bundle coming straight out from the Power Supply Unit (PSU).
+                        <img src="images/atx_cable.png" class="component-img" alt="ATX 24-pin Cable" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "SATA Ports") {
+                info = "Data channel ports linking storage media directly into the system data architecture.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>SATA SSD</stroke> 2.5-inch solid-state high-speed storage drives.
+                        <img src="images/sata_ssd.png" class="component-img" alt="SATA SSD" onclick="zoomImage(this)">
+                    </div>
+                    
+                    <div class="component-item">
+                        <stroke>Hard Disk Drive (HDD)</stroke> Large, mechanical spinning magnetic platter storage drives.
+                        <img src="images/hdd.png" class="component-img" alt="HARD DISK DRIVE" onclick="zoomImage(this)">
+                    </div>
+
+                    <div class="component-item">
+                        <stroke>SATA Data Cable</stroke> Cable interface that links those storage drives right back into these ports.
+                        <img src="images/sata_cable.png" class="component-img" alt="SATA DATA CABLE" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "CMOS Battery") {
+                info = "Small cell power node maintaining baseline firmware tracking rules when main power drops.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>CR2032 Lithium Cell</stroke> Simple 3V coin battery unit providing volatile configuration power backups.
+                        <img src="images/cmos_battery.png" class="component-img" alt="CMOS Battery" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "I/O Ports") {
+                info = "The Rear Input/Output panel connects all external hardware peripherals and networking lines directly to the system bus.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>USB 2.0 Ports (Black)</stroke> 
+                        Low-latency connections for input devices like <b>Mice, Keyboards, and Printers</b>.
+                        <img src="images/usb_2.0.png" class="component-img" alt="USB 2.0 Ports" onclick="zoomImage(this)">
+                    </div>
+                    <div class="component-item">
+                        <stroke>USB 3.0 Ports (Blue)</stroke> 
+                        High-speed data channels for <b>External SSDs, Flash Drives, and HD Webcams</b>.
+                        <img src="images/usb_3.0.png" class="component-img" alt="USB 3.0 Ports" onclick="zoomImage(this)">
+                    </div>
+                    <div class="component-item">
+                        <stroke>RJ-45 Ethernet Port</stroke> 
+                        Local area network line interface where the <b>LAN / Network Cable</b> snaps in for internet access.
+                        <img src="images/rj45_ethernet.png" class="component-img" alt="RJ-45 Ethernet Port" onclick="zoomImage(this)">
+                    </div>
+                    <div class="component-item">
+                        <stroke>Audio Input Jacks</stroke> 
+                        Analog sound channels: <b>Pink</b> jack handles microphone inputs; <b>Blue</b> jack handles line-in audio equipment.
+                        <img src="images/audio_input.png" class="component-img" alt="Audio Input Jacks" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "Front Panel Headers") {
+                info = "Pins matching internal structural lines built directly onto the physical PC system chassis.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Chassis Connectors</stroke> Power Button cables, Reset Button lines, Case LEDs, and front Audio/USB wiring.
+                        <img src="images/chassis_connectors.png" class="component-img" alt="Chassis Connectors" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "VRM Power Stages") {
+                info = "Voltage management phases filtering baseline system current directly onto the processor lines.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>VRM Heatsink Blocks</stroke> Thermal metal plates covering power phases to draw away high power operating heat.
+                        <img src="images/vrm_power_stages.png" class="component-img" alt="VRM Heatsink Blocks" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "Chipset Heatsink") {
+                info = "Thermal dissipation cover handling secondary baseline logic board processing grids.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Motherboard Chipset</stroke> System controller managing interactions between PCIe lanes, SATA channels, and USB data arrays.
+                        <img src="images/chipset.png" class="component-img" alt="CHIPSET" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "6-Pin CPU Power Connector") {
+                info = "Dedicated power delivery input channel supplying clean 12V voltage directly to the CPU voltage regulator modules (VRMs).";
+                componentsHTML = `
+                    <div class="component-item">
+ <stroke>6-Pin to CPU EPS Cable</stroke> The secondary power lead from the Power Supply Unit (PSU) supplying heavy operating current to the processor.
+                        <img src="images/6_pins_cable.png" class="component-img" alt="CPU Power Cable" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "CPU Fan Header") {
+                info = "A dedicated 4-pin PWM power connector that regulates the dynamic cooling speed of your main processor fan based on live thermal output.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>CPU Heatsink Fan Connector</stroke> The main power wire running from the central CPU cooling tower fan or liquid cooling pump.
+                        <img src="images/cpu_fan_connector.png" class="component-img" alt="CPU Fan Connector" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "PCIe x1 Expansion Slots") {
+                info = "Lower-bandwidth auxiliary expansion channels built to attach smaller hardware utility cards.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Sound Cards</stroke> Dedicated audio processors for high-fidelity recording systems or studio sound outputs.
+                        <img src="images/sounds_card.png" class="component-img" alt="Sound Card" onclick="zoomImage(this)">
+                    </div>
+                    <div class="component-item">
+                        <stroke>Wi-Fi / Bluetooth PCIe Cards</stroke> Wireless expansion network modules fitted with high-gain rear antennas.
+                        <img src="images/wifi_bluetooth_cards.png" class="component-img" alt="Wi-Fi Card" onclick="zoomImage(this)">
+                    </div>
+                    <div class="component-item">
+                        <stroke>PCIe Expansion Cards</stroke> Sound cards, dedicated Wi-Fi capture cards, or high-speed storage expanders.
+                        <img src="images/PCIe_Expansion_Cards.png" class="component-img" alt="PCIe Expansion Cards" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "Front Panel Audio Header") {
+                info = "Internal audio pin array (JAUD1) linking the motherboard sound processor to the headphones/microphone audio ports on the exterior case chassis.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>HD Audio Case Connector</stroke> The internal bundled wiring array running inside the computer case labeled 'HD AUDIO'.
+                        <img src="images/hd_audio_connectors.png" class="component-img" alt="HD Audio Connector" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "System Fan Header") {
+                info = "Auxiliary 3-pin or 4-pin power headers used to route, monitor, and regulate custom internal chassis airflow cooling fans.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Chassis Cooling Fan</stroke> Case ventilation airflow cooling fans running power from internal system boards.
+                        <img src="images/chassis_cooling_fan.png" class="component-img" alt="Case Fan" onclick="zoomImage(this)">
+                    </div>`;
+            }
+            else if (part == "Front Panel USB 3.0 Header") {
+                info = "An internal high-speed header pin array designed to link motherboard connections straight out to the fast USB 3.0 ports on the front or top interface panel of your PC case casing.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Front Panel USB 3.0 Internal Cable</stroke> The thick internal bundle cable (frequently stylized with a distinct blue socket tip) running straight out from the external chassis assembly.
+                        <img src="images/usb_3.0_front_panel_connector.png" class="component-img" alt="Front Panel USB 3.0 Cable" onclick="zoomImage(this)">
+                    </div>`;
+            }
+                    else if (part == "Front Panel USB Type-C Header") {
+                info = "A high-speed modern internal interface designed to link the motherboard directly to the reversible USB Type-C port located on the PC case front or top IO panel.";
+                componentsHTML = `
+                    <div class="component-item">
+                        <stroke>Front Panel Type-C Internal Cable</stroke> The specialized ribbon cable coming from the front panel chassis, featuring a distinctive rectangular socket plug.
+                        <img src="images/front_usbc_cable.png" class="component-img" alt="Front Panel USB-C Cable" onclick="zoomImage(this)">
+                    </div>`;
+            }
+
+            
+            document.getElementById("partInfo").innerHTML = `
+                <h3>${part}</h3>
+                <p>${info}</p>
+                <h4 style="color:#00ff9d; margin-top:15px; margin-bottom:5px;">🧩 What Plugs In Here:</h4>
+                <div class="component-list">${componentsHTML}</div>
+            `;
+        }
+
+        let database = {
+            "software": [["OS Freezing", "Run system file checker or re-verify driver software configurations."]],
+            "hardware": [["No POST Screen", "Reseat RAM modules or clear internal CMOS configuration structures."]]
+        };
+        function showProblems(category) {
+            let output = "<h2>" + category.toUpperCase() + " PROBLEMS</h2>";
+            if (database[category]) {
+                database[category].forEach((item, index) => {
+                    output += `
+                    <div class="problem">
+                        <h3>${index + 1}. ${item[0]}</h3>
+                        <p><b>Solution:</b> ${item[1]}</p>
+                    </div>`;
+                });
+            } else {
+                output += "<p>No logged diagnostic entries present for this block category choice.</p>";
+            }
+            document.getElementById("content").innerHTML = output;
+        }
+    </script>
+
+<script type="module">
+import { 
+    signUpUser, 
+    loginUser, 
+    resetPassword, 
+    logoutUser, 
+    listenToAuthState 
+} from "./firebase.js";
+
+let navAuthMode = "login";
+let currentUser = null;
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[_@])[a-zA-Z0-9_@]{4,20}$/;
+const passwordComplexRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+
+const navEmail = document.getElementById("navEmail");
+const navUsername = document.getElementById("navUsername");
+const navPassword = document.getElementById("navPassword");
+const navConfirmPassword = document.getElementById("navConfirmPassword");
+
+const navEmailError = document.getElementById("navEmailError");
+const navUsernameError = document.getElementById("navUsernameError");
+const navPasswordError = document.getElementById("navPasswordError");
+const navConfirmPasswordError = document.getElementById("navConfirmPasswordError");
+const navAuthAlert = document.getElementById("navAuthAlert");
+const otpToast = document.getElementById("otpToast");
+
+document.addEventListener("DOMContentLoaded", function () {
+    listenToAuthState((user) => {
+        currentUser = user;
+        updateAccountDisplay();
+    });
+
+    document.getElementById("authBtn").addEventListener("click", handleAuthBtnClick);
+    document.getElementById("navSubmitBtn").addEventListener("click", performNavAuth);
+    document.getElementById("navToggleBtn").addEventListener("click", switchNavMode);
+    document.getElementById("forgotPasswordBtn").addEventListener("click", handleNavForgotPassword);
+
+    document.getElementById("toggleNavPasswordBtn").addEventListener("click", function() {
+        togglePasswordVisibility("navPassword", this);
+    });
+    document.getElementById("toggleNavConfirmPasswordBtn").addEventListener("click", function() {
+        togglePasswordVisibility("navConfirmPassword", this);
+    });
+
+    navEmail.addEventListener("input", () => { hideNavAlert(); validateEmail(); });
+    navUsername.addEventListener("input", () => { hideNavAlert(); validateUsername(); });
+    navPassword.addEventListener("input", () => {
+        hideNavAlert();
+        if (navAuthMode === "signup") {
+            validatePassword();
+            validateConfirmPassword();
+        }
+    });
+    navConfirmPassword.addEventListener("input", () => {
+        hideNavAlert();
+        validateConfirmPassword();
+    });
+});
+
+function togglePasswordVisibility(inputId, eyeIcon) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        eyeIcon.textContent = "𓁺";
+    } else {
+        input.type = "password";
+        eyeIcon.textContent = "⌣";
+    }
+}
+
+function showNavAlert(msg) {
+    navAuthAlert.textContent = msg;
+    navAuthAlert.style.display = "block";
+}
+
+function hideNavAlert() {
+    navAuthAlert.style.display = "none";
+}
+
+function showOtpToast(email) {
+    if (!otpToast) return;
+    otpToast.textContent = `📩 OTP code sent to ${email}!`;
+    otpToast.classList.add("show");
+    setTimeout(() => otpToast.classList.remove("show"), 4000);
+}
+
+function updateAccountDisplay() {
+    const userDisplay = document.getElementById("userDisplay");
+    const authBtn = document.getElementById("authBtn");
+    const senderEmail = document.getElementById("sender_email");
+    const navbarWelcome = document.getElementById("navbarWelcome");
+
+    if (currentUser) {
+        const username = currentUser.displayName || currentUser.email.split("@")[0];
+        userDisplay.textContent = username;
+        authBtn.textContent = "Sign Out";
+        if (senderEmail) senderEmail.value = currentUser.email;
+        if (navbarWelcome) navbarWelcome.textContent = username;
+    } else {
+        userDisplay.textContent = "Guest";
+        authBtn.textContent = "Sign In";
+        if (navbarWelcome) navbarWelcome.textContent = "Guest";
+    }
+}
+
+async function handleAuthBtnClick() {
+    if (currentUser) {
+        try {
+            await logoutUser();
+            localStorage.setItem("userNickname", "Guest");
+            localStorage.setItem("userRole", "Guest");
+            document.getElementById("navLoginModal").style.display = "none";
+            location.reload();
+        } catch (err) {
+            alert("⚠️ " + err.message);
+        }
+    } else {
+        const modal = document.getElementById("navLoginModal");
+        modal.style.display = modal.style.display === "none" ? "block" : "none";
+    }
+}
+
+function switchNavMode() {
+    const navModalTitle = document.getElementById("navModalTitle");
+    const navSubmitBtn = document.getElementById("navSubmitBtn");
+    const navConfirmPassGroup = document.getElementById("navConfirmPassGroup");
+    const navForgotPassGroup = document.getElementById("navForgotPassGroup");
+    const navToggleText = document.getElementById("navToggleText");
+    const navToggleBtn = document.getElementById("navToggleBtn");
+
+    hideNavAlert();
+    navEmail.value = "";
+    navUsername.value = "";
+    navPassword.value = "";
+    navConfirmPassword.value = "";
+
+    [navEmailError, navUsernameError, navPasswordError, navConfirmPasswordError].forEach(e => {
+        e.textContent = "";
+        e.classList.remove("match-success");
+    });
+    [navEmail, navUsername, navPassword, navConfirmPassword].forEach(inp => {
+        inp.classList.remove("valid", "invalid");
+    });
+
+    if (navAuthMode === "login") {
+        navAuthMode = "signup";
+        navModalTitle.textContent = "Create Account";
+        navSubmitBtn.textContent = "Sign Up";
+        navConfirmPassGroup.style.display = "block";
+        navForgotPassGroup.style.display = "none";
+        navToggleText.textContent = "Already have an account?";
+        navToggleBtn.textContent = "Log In";
+    } else {
+        navAuthMode = "login";
+        navModalTitle.textContent = "Account Login";
+        navSubmitBtn.textContent = "Log In";
+        navConfirmPassGroup.style.display = "none";
+        navForgotPassGroup.style.display = "block";
+        navToggleText.textContent = "Don't have an account?";
+        navToggleBtn.textContent = "Sign Up";
+    }
+}
+
+function validateEmail() {
+    const value = navEmail.value.trim();
+    if (value === "") {
+        navEmailError.textContent = "";
+        navEmail.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (!emailRegex.test(value)) {
+        navEmailError.textContent = "Please enter a valid email address.";
+        navEmail.classList.add("invalid");
+        navEmail.classList.remove("valid");
+        return false;
+    } else {
+        navEmailError.textContent = "";
+        navEmail.classList.remove("invalid");
+        navEmail.classList.add("valid");
+        return true;
+    }
+}
+
+function validateUsername() {
+    const value = navUsername.value.trim();
+    if (value === "") {
+        navUsernameError.textContent = "";
+        navUsername.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (value.length < 4) {
+        navUsernameError.textContent = "Must be at least 4 characters long.";
+        navUsername.classList.add("invalid");
+        navUsername.classList.remove("valid");
+        return false;
+    }
+    if (!usernameRegex.test(value)) {
+        navUsernameError.textContent = "Must include letters, numbers, and special characters (_ or @).";
+        navUsername.classList.add("invalid");
+        navUsername.classList.remove("valid");
+        return false;
+    } else {
+        navUsernameError.textContent = "";
+        navUsername.classList.remove("invalid");
+        navUsername.classList.add("valid");
+        return true;
+    }
+}
+
+function validatePassword() {
+    const value = navPassword.value;
+    if (value === "") {
+        navPasswordError.textContent = "";
+        navPassword.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (!passwordComplexRegex.test(value)) {
+        navPasswordError.textContent = "Must be at least 6 characters with letters, numbers & symbols.";
+        navPassword.classList.add("invalid");
+        navPassword.classList.remove("valid");
+        return false;
+    } else {
+        navPasswordError.textContent = "";
+        navPassword.classList.remove("invalid");
+        navPassword.classList.add("valid");
+        return true;
+    }
+}
+
+function validateConfirmPassword() {
+    const passVal = navPassword.value;
+    const confirmVal = navConfirmPassword.value;
+    if (confirmVal === "") {
+        navConfirmPasswordError.textContent = "";
+        navConfirmPasswordError.classList.remove("match-success");
+        navConfirmPassword.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (confirmVal !== passVal) {
+        navConfirmPasswordError.textContent = "❌ Passwords do not match!";
+        navConfirmPasswordError.classList.remove("match-success");
+        navConfirmPassword.classList.add("invalid");
+        navConfirmPassword.classList.remove("valid");
+        return false;
+    } else {
+        navConfirmPasswordError.textContent = "✓ Passwords match!";
+        navConfirmPasswordError.classList.add("match-success");
+        navConfirmPassword.classList.remove("invalid");
+        navConfirmPassword.classList.add("valid");
+        return true;
+    }
+}
+
+async function completeSignUp(email, password, username) {
+    const user = await signUpUser(email, password, username);
+    localStorage.setItem("userEmail", user.email);
+    localStorage.setItem("userNickname", username);
+    localStorage.setItem("userRole", "Registered User");
+    document.getElementById("navLoginModal").style.display = "none";
+    location.reload();
+}
+window.completeSignUp = completeSignUp;
+
+async function performNavAuth() {
+    const isEmailValid = validateEmail();
+    const isUsernameValid = validateUsername();
+
+    if (!navEmail.value.trim()) {
+        navEmailError.textContent = "Email is required.";
+        navEmail.classList.add("invalid");
+    }
+    if (!navUsername.value.trim()) {
+        navUsernameError.textContent = "Username is required.";
+        navUsername.classList.add("invalid");
+    }
+    if (!navPassword.value) {
+        navPasswordError.textContent = "Password is required.";
+        navPassword.classList.add("invalid");
+    }
+
+    if (!isEmailValid || !isUsernameValid) return;
+
+    const email = navEmail.value.trim().toLowerCase();
+    const username = navUsername.value.trim();
+    const password = navPassword.value;
+
+    if (navAuthMode === "signup") {
+        const isPasswordValid = validatePassword();
+        const isConfirmMatch = validateConfirmPassword();
+        if (!isPasswordValid || !isConfirmMatch) return;
+
+        if (typeof initiateOTPFlow !== "function") {
+            showNavAlert("⚠️ OTP verification is unavailable right now. Please refresh and try again.");
+            return;
+        }
+
+        await initiateOTPFlow({ email, password, username }, completeSignUp);
+        showOtpToast(email);
+        return;
+    }
+
+    // Log In Flow
+    const submitBtn = document.getElementById("navSubmitBtn");
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Please wait...";
+    submitBtn.disabled = true;
+
+    try {
+        const user = await loginUser(email, password);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userNickname", user.displayName || username);
+        localStorage.setItem("userRole", "Registered User");
+        document.getElementById("navLoginModal").style.display = "none";
+        location.reload();
+    } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+            showNavAlert("⚠️ An account with this email already exists!");
+        } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+            showNavAlert("⚠️ Account not found or invalid credentials!");
+            navEmail.classList.add("invalid");
+            navUsername.classList.add("invalid");
+            navPassword.classList.add("invalid");
+        } else {
+            showNavAlert("⚠️ " + err.message);
+        }
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+async function handleNavForgotPassword() {
+    const email = navEmail.value.trim().toLowerCase();
+    if (!email) {
+        showNavAlert("⚠️ Please enter your email first.");
+        return;
+    }
+    try {
+        await resetPassword(email);
+        alert("📧 Password reset link sent to your email!");
+    } catch (err) {
+        showNavAlert("⚠️ " + err.message);
+    }
+}
+</script>
+
+<!-- Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) -->
+<script>
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>iSeeScan - AI Laboratory Reporting Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        /* --- Fix: Stretches the repository image across the viewport --- */
+        .background-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        /* --- Fix: Highly darkened overlay so the motherboard blends in like the main page --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(3, 7, 18, 0.97) 20%, rgba(6, 11, 25, 0.92) 100%);
+            z-index: -1;
+        }
+
+        body{
+            margin:0;
+            padding:20px;
+            color:white;
+            overflow-x:hidden;
+        }
+        
+        .container{
+            width:100%;
+            max-width:800px;
+            margin:20px auto;
+            padding:35px;
+            background:rgba(255,255,255,.04);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(0,234,255,.25);
+            border-radius:25px;
+            position: relative;
+            z-index: 1;
+        }
+        .top-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .back-link { color: #00eaff; background: none; border: none; font-size: 16px; cursor: pointer; text-decoration: none; font-weight: 500; }
+        .workspace-grid { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .chat-container { background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 234, 255, 0.2); border-radius: 18px; height: 480px; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 80%; padding: 14px 20px; border-radius: 18px; line-height: 1.6; }
+        .msg.user { background: linear-gradient(135deg, #0055ff, #00aaff); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg.ai { background: rgba(255, 255, 255, 0.12); border-left: 4px solid #00ff9d; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .sender-header { font-weight: 700; font-size: 13px; text-transform: uppercase; margin-bottom: 6px; }
+        .ai-color { color: #00ff9d; } 
+        .input-bar { display: flex; padding: 15px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(0,234,255,0.15); gap: 12px; }
+        .input-bar input { flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(0,234,255,0.3); border-radius: 12px; padding: 15px; color: white; outline: none; }
+        .input-bar button { background: #00eaff; color: #001450; border: none; border-radius: 12px; padding: 0 28px; font-weight: 700; cursor: pointer; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        .badge.hw { background: #ffd700; color: #000; } .badge.sw { background: #ff3366; color: #fff; }
+        
+    /* ==========================================
+   RESPONSIVE DESIGN (Desktop / Tablet / Mobile)
+========================================== */
+
+/* Large Desktop */
+.container{
+    width:100%;
+}
+
+/* Tablet */
+@media (max-width:992px){
+
+    body{
+        padding:15px;
+    }
+
+    .container{
+        padding:25px;
+    }
+
+    .chat-container{
+        height:450px;
+    }
+
+    .msg{
+        max-width:90%;
+    }
+
+    .input-bar input{
+        font-size:15px;
+    }
+
+    .input-bar button{
+        padding:0 20px;
+    }
+
+}
+
+/* Mobile */
+@media (max-width:768px){
+
+    body{
+        padding:10px;
+    }
+
+    .container{
+        width:100%;
+        padding:18px;
+        border-radius:18px;
+    }
+
+    .top-bar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    header h1{
+        font-size:28px !important;
+    }
+
+    header p{
+        font-size:14px;
+    }
+
+    .chat-container{
+        height:420px;
+    }
+
+    .chat-messages{
+        padding:15px;
+        gap:12px;
+    }
+
+    .msg{
+        max-width:100%;
+        font-size:14px;
+        padding:12px 15px;
+    }
+
+    .input-bar{
+        flex-direction:column;
+        padding:12px;
+        gap:10px;
+    }
+
+    .input-bar input{
+        width:100%;
+        font-size:15px;
+        padding:14px;
+    }
+
+    .input-bar button{
+        width:100%;
+        padding:14px;
+        font-size:15px;
+    }
+
+}
+@media (max-width:768px){
+
+    html,body{
+        width:100%;
+        overflow-x:hidden;
+    }
+
+    *{
+        max-width:100%;
+    }
+
+}
+
+/* Small Phones */
+@media (max-width:480px){
+
+    body{
+        padding:8px;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    header h1{
+        font-size:22px !important;
+    }
+
+    header p{
+        font-size:13px;
+    }
+
+    .chat-container{
+        height:380px;
+    }
+
+    .chat-messages{
+        padding:12px;
+    }
+
+    .msg{
+        font-size:13px;
+        line-height:1.5;
+    }
+
+    .back-link{
+        font-size:14px;
+    }
+
+    .input-bar input{
+        font-size:14px;
+    }
+
+    .input-bar button{
+        font-size:14px;
+    }
+
+}
+    
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="navbar-logo-emoji">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <a href="main.html" class="navbar-account-btn" title="Go to Home / Sign in">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item active">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+</div>
+
+<div class="navbar-spacer"></div>
+
+
+    <!-- Fix: Pulls the repository file dynamically into the HTML layout -->
+    <img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+    <div class="container">
+        <div class="top-bar">
+            <a href="main.html" class="back-link">⬅ Back to Dashboard</a>
+        </div>
+        <header style="text-align:center; margin-bottom:30px;">
+            <h1 style="color:#00eaff; text-shadow:0 0 15px cyan;">🛠️ AI Computer Incident Reporting</h1>
+            <p style="color:#e5faff;">Computer Laboratory Diagnostics Engine & Live Status Logs</p>
+        </header>
+        <div class="workspace-grid" id="workspaceGrid">
+            <div class="chat-container">
+                <div class="chat-messages" id="reportingLogs">
+                    <div class="msg ai"><div class="sender-header ai-color">iSeeScan Core</div>Welcome. Please submit a description of the computer hardware or software issue you are encountering.</div>
+                </div>
+                <div class="input-bar">
+                    <input type="text" id="reportInput" placeholder="Describe the problem (e.g., keyboard, mouse, virus, error)..." onkeydown="if(event.key==='Enter') processReport()">
+                    <button onclick="processReport()">File Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+ <script>
+    // Automatically reload logs from the browser memory on page bootup
+    window.onload = function() {
+        loadSavedLogs();
+    };
+
+    // --- 100 PROBLEM DIAGNOSTIC DATABASE CONFIGURATION ---
+    const diagnosticDatabase = {
+        // ==========================================
+        // HARDWARE FAULTS (50 Scenarios mapped by key terms)
+        // ==========================================
+        hardware: {
+            peripherals: {
+                keywords: ["keyboard", "mouse", "trackpad", "clicker", "typing", "scroll"],
+                title: "Peripheral Interface Disruption",
+                problems: "Stuck keys, unresponsive optical mouse sensors, unmapped keys, scroll wheel jumping, cursor drifting, or hardware key mapping locks.",
+                steps: [
+                    "Disconnect the peripheral device from the current USB port and firmly re-insert it.",
+                    "Isolate the issue by testing the device in an alternate USB port directly on the motherboard's rear I/O panel.",
+                    "Inspect the mechanical key switches or optical housing for physical debris blocking the internal sensor arrays."
+                ]
+            },
+            display: {
+                keywords: ["monitor", "screen", "display", "flicker", "no signal", "black screen", "blinking", "dim", "resolution", "hdmi", "vga", "displayport", "lines"],
+                title: "Video Output Signal Anomaly",
+                problems: "Screen flickering, blank display panels, 'No Signal' error boxes, horizontal or vertical lines on the matrix, incorrect native scaling, loose interface hardware handshakes, or backlight inverter drops.",
+                steps: [
+                    "Verify the monitor's physical power LED status indicator (Active Blue/Green vs. Standby Amber/Orange).",
+                    "Ensure the video cable (HDMI/VGA/DisplayPort) is seated into the dedicated graphics card slot, not the motherboard's integrated ports.",
+                    "Force a hardware-level refresh of the OS graphics pipeline by using the hotkey combo: <b>Windows Key + Ctrl + Shift + B</b>."
+                ]
+            },
+            power: {
+                keywords: ["power", "boot", "turn on", "dead", "beep", "smoke", "spark", "shutdown", "restart", "cycling", "button", "psu", "capacitor"],
+                title: "Power Subsystem / POST Lifecycle Fault",
+                problems: "System fails to initialize, endless boot loops, repetitive motherboard bios POST audio beep codes, sudden hard shutdowns under electrical load, or unresponsive power switches.",
+                steps: [
+                    "Verify the master power cable is pushed completely flush into the PSU receptacle and that the rocker switch is set to 'I' (On).",
+                    "Unplug all non-essential external USB storage modules (flash drives, charging cables) to rule out a startup partition lock.",
+                    "Listen closely for internal chassis fan spin-up or click noises that indicate short-circuit power protection triggers."
+                ]
+            },
+            audio: {
+                keywords: ["audio", "sound", "headphone", "speaker", "mic", "microphone", "jack", "static", "buzzing", "mute", "vol"],
+                title: "Audio Interface & Transducer Error",
+                problems: "Total sound loss, static buzzing noise loops, distorted microphone feedback lines, broken 3.5mm input pins, or incorrect hardware port mapping.",
+                steps: [
+                    "Confirm the 3.5mm analog connector matches the proper color scheme (Green for headphone output, Pink for microphone input).",
+                    "Right-click the speaker icon in the taskbar tray, open 'Sound Settings', and confirm the appropriate hardware output channel is active.",
+                    "Check the physical inline cabling controls for accidental hardware volume suppression or manual mute toggle state."
+                ]
+            },
+            storage_hw: {
+                keywords: ["hard drive", "hdd", "ssd", "clicking", "nvme", "sata", "not found", "drive missing", "smart error"],
+                title: "Storage Media Controller Interface Failure",
+                problems: "Audible clicking noises coming from magnetic platters, mechanical head drops, solid-state drive firmware dropouts, or BIOS failing to discover local storage media vectors.",
+                steps: [
+                    "Shut down the machine instantly to prevent further localized sector deterioration if physical clicking noises are present.",
+                    "Access the motherboard UEFI/BIOS environment during initialization to check if the drive is recognized in the boot path.",
+                    "Check internal SATA data lines and SATA power rails for loose connection faults inside the physical system housing."
+                ]
+            },
+            memory_hw: {
+                keywords: ["ram", "memory stick", "blue screen on boot", "long beep", "dimm"],
+                title: "Volatile Memory Module POST Disruption",
+                problems: "Unseated DIMM modules, corrupted RAM sector addresses causing immediate hardware loop failures, or failure to clear standard system configuration cycles.",
+                steps: [
+                    "Perform a complete system power drain by disconnecting the wall line and holding down the power chassis switch for 15 seconds.",
+                    "Reseat the physical RAM stick into its designated motherboard slot until both side retention clips click locked.",
+                    "Test individual RAM modules one at a time across alternate motherboard slots to isolate physical hardware channel errors."
+                ]
+            },
+            cooling: {
+                keywords: ["fan", "loud", "hot", "overheating", "thermal", "cpu fan", "noise", "grinding"],
+                title: "Thermal Management Subsystem Fault",
+                problems: "Internal fan bearing grinding sounds, failure of the CPU cooling fan assembly, degraded thermal paste application interface, or rapid automatic safety thermal shutdowns.",
+                steps: [
+                    "Check for obstructions or internal wiring lines catching on the blades of the chassis cooling or CPU cooling fans.",
+                    "Clear out internal ventilation pathways using compressed air canisters to purge compacted dust layers from aluminum fins.",
+                    "Monitor hardware core temperature telemetry using system metrics to verify if safe thermal thresholds are breached."
+                ]
+            },
+            networking_hw: {
+                keywords: ["ethernet cable", "lan port", "network plug", "rj45", "no green light"],
+                title: "Physical Layer Network Interface Failure",
+                problems: "Broken RJ45 plastic retention tab snaps, damaged copper pins inside local LAN drops, or lack of physical link status connection verification lights.",
+                steps: [
+                    "Unplug the Ethernet cord and verify if the plastic clip snaps firmly when pushed back into the machine network card port.",
+                    "Inspect the back panel port to ensure the hardware status indicator lights (Green/Amber link LEDs) are actively blinking.",
+                    "Swap the network patch cord with a verified operational cable from a neighboring terminal desk."
+                ]
+            },
+            optical: {
+                keywords: ["cd", "dvd", "drive tray", "disc", "burner", "stuck tray"],
+                title: "Optical Storage Assembly Disruption",
+                problems: "Mechanical disk drawer failing to open, optical lens misalignment, disc scratching anomalies, or disk spindle read motor initialization drops.",
+                steps: [
+                    "Insert a straight paperclip point into the manual emergency pinhole release slot on the front bezel of the optical drive.",
+                    "Check device manager states to confirm if the disc driver configuration layers are loaded by the firmware kernel.",
+                    "Clean the media disc surface using a lint-free microfiber fabric starting from the inside circle out to the borders."
+                ]
+            },
+            printing_hw: {
+                keywords: ["printer", "paper jam", "toner", "ink", "feed", "roller", "smudge"],
+                title: "Local Printing Device Mechanical Fault",
+                problems: "Feed roller paper jams, physical misalignment of the toner print drum carriage matrix, empty ink warnings, or smudged document output lines.",
+                steps: [
+                    "Carefully slide out the paper path guides using uniform bilateral tension to clear stuck paper paths without ripping sheets.",
+                    "Remove and lightly shake the dry laser toner cartridge module to redistribute remaining media powder compounds.",
+                    "Run the physical maintenance alignment track cycle from the on-board device utility operations deck."
+                ]
+            }
+        },
+
+        // ==========================================
+        // SOFTWARE FAULTS (50 Scenarios mapped by key terms)
+        // ==========================================
+        software: {
+            security: {
+                keywords: ["virus", "malware", "pop up", "hacked", "ransomware", "trojan", "spyware", "adware", "phishing"],
+                title: "Malicious Logic / Endpoint Compromise",
+                problems: "Spontaneous advertising windows popping up, malicious file generation routines, hijacked background internet proxies, locked security policies, or ransomware drop screens.",
+                steps: [
+                    "Disconnect the computer system terminal immediately from the physical laboratory localized intranet network loop.",
+                    "Open Windows Security console configurations from the startup control layer interface.",
+                    "Initiate a comprehensive 'Offline Scan' structure mode to clean root-level directory hooks prior to runtime loading."
+                ]
+            },
+            crashes: {
+                keywords: ["error", "crashed", "blue screen", "bsod", "freeze", "dump file", "fatal", "exception", "kernel", "unresponsive"],
+                title: "Operating System Execution Exception",
+                problems: "System kernel panics, unhandled memory pointer drops, blue screen memory dumps, software engine locks, or freezing due to incompatible software configuration registry entries.",
+                steps: [
+                    "Document or snap a picture of the complete hex decimal error parameters displayed on the crash interface module.",
+                    "Force launch the workstation into 'Safe Mode' runtime parameters during the startup phase to bypass dynamic hooks.",
+                    "Launch the Command Prompt interface as Administrator and execute the diagnostic structure line: <code>sfc /scannow</code>."
+                ]
+            },
+            performance: {
+                keywords: ["slow", "lag", "loading", "task manager", "100%", "stutter", "spinning", "delayed", "ram full", "cpu high"],
+                title: "Volatile Resource Saturation Constraint",
+                problems: "Extended system operation processing lag, application interface loading wheel stalls, background memory leaks, or execution thread resource locks.",
+                steps: [
+                    "Call up the system structural task supervisor directly via hotkey combination: <b>Ctrl + Shift + Esc</b>.",
+                    "Sort processes by the resource columns to isolate hidden engine modules generating excessive overhead constraints.",
+                    "Purge localized cache pools by clear-wiping paths located in the system temporary directory nodes: <code>%temp%</code>."
+                ]
+            },
+            network_sw: {
+                keywords: ["internet", "network", "wifi", "disconnect", "offline", "dns", "ip address", "ping", "browser error", "proxy", "website wont load"],
+                title: "Logical Configuration Network Transport Drop",
+                problems: "Expired local address leases, local name server lookup failures, socket configuration conflicts, or firewall access rule rejections.",
+                steps: [
+                    "Open the Command Prompt window interface and type: <code>ipconfig /release</code> followed by <code>ipconfig /renew</code>.",
+                    "Purge corrupted domain cache resolution traces inside the engine by typing: <code>ipconfig /flushdns</code>.",
+                    "Ensure browser network configurations are not pointing to stale localized lab proxy server configurations."
+                ]
+            },
+            updates: {
+                keywords: ["update", "windows update", "patch", "stuck downloading", "failed update", "error code 0x", "looping update"],
+                title: "System Maintenance Deployment Failure",
+                problems: "Update downloads getting stuck indefinitely at specific percentages, corrupted local update file vaults, or update installations failing with hex error codes.",
+                steps: [
+                    "Access the Services management console configuration space by running the terminal string: <code>services.msc</code>.",
+                    "Locate and manually stop the 'Windows Update' core engine thread service line cleanly.",
+                    "Navigate into the local data repository directory path <code>C:\\Windows\\SoftwareDistribution</code> and delete its contents before restarting the engine."
+                ]
+            },
+            drivers: {
+                keywords: ["driver", "device manager", "yellow triangle", "unknown device", "audio missing", "video glitch"],
+                title: "Hardware Abstraction Driver Conflict",
+                problems: "Missing interface system driver stacks, yellow warning indicators across configuration interfaces, or broken hardware control wrappers.",
+                steps: [
+                    "Open the system properties manager window via the console execution line: <code>devmgmt.msc</code>.",
+                    "Locate the failing device node, right-click its root layer interface, and select the 'Update Driver' configuration wizard.",
+                    "If updates fail, choose 'Roll Back Driver' to revert the operating subsystem interface to a stable history profile version."
+                ]
+            },
+            applications: {
+                keywords: ["office", "word", "excel", "photoshop", "autocad", "activation", "license", "wont open", "app crash", "dll missing"],
+                title: "Application Environment Layer Exception",
+                problems: "Missing critical system DLL library links, configuration workspace errors, software licensing validation blocks, or instant software crashes upon startup.",
+                steps: [
+                    "Launch the Windows Control Panel interface, choose 'Programs and Features', click the application tool, and click 'Repair'.",
+                    "Download and install the appropriate updated Microsoft Visual C++ Redistributable architecture packages.",
+                    "Right-click the application executable file shortcut, navigate to properties, and select 'Run as Administrator'."
+                ]
+            },
+            permissions: {
+                keywords: ["admin", "permission", "denied", "access denied", "blocked", "uac", "password lock", "restricted"],
+                title: "Access Control / Privilege Violation",
+                problems: "User Account Control warning blocks preventing file adjustments, local directory read/write restrictions, or privilege elevation rejections.",
+                steps: [
+                    "Ensure you are attempting execution operations inside local standard workspace zones rather than root-level system profiles.",
+                    "Right-click the directory path folder object, check 'Properties', and view permissions under the 'Security' parameter card.",
+                    "Contact the laboratory instructor deck to obtain temporary local domain workstation validation credentials."
+                ]
+            },
+            browser: {
+                keywords: ["chrome", "edge", "extensions", "cookies", "cache", "certificate", "ssl", "ad blocker"],
+                title: "Web Browser Subsystem Disruption",
+                problems: "Corrupted security handshake credentials, rogue helper plug-in background threads, data profile bloat, or page loading asset drops.",
+                steps: [
+                    "Launch browser configurations and execute a clear data sequence for the cookies, cache pools, and session tracking logs.",
+                    "Temporarily toggle off third-party ad blocking and network privacy extensions to ensure script routing is clear.",
+                    "Synchronize the operating system's main internal system time and date tracking to resolve SSL security verification errors."
+                ]
+            },
+            file_system: {
+                keywords: ["corrupt file", "zip error", "shortcut broken", "recycle bin", "unreadable", "directory missing"],
+                title: "Logical File Allocation Layer Error",
+                problems: "Broken hard directory link trees, compressed zip archive extraction blocks, unreadable sector paths, or cluster index issues.",
+                steps: [
+                    "Initialize an automated directory sector tracking sequence by running this command in the console: <code>chkdsk C: /f</code>.",
+                    "Utilize alternative structural extraction packages like 7-Zip to process complex file packages.",
+                    "Examine the local user account directory permissions matrix to confirm the folder object has not been orphaned."
+                ]
+            }
+        }
+    };
+
+    // --- MAIN ENGINE DIAGNOSTIC MATCHING ROUTINE ---
+    function generateManualResponse(userInput) {
+        const lowerInput = userInput.toLowerCase();
+
+        // 1. Scan for specific Hardware categories matching user terms
+        for (const category in diagnosticDatabase.hardware) {
+            const data = diagnosticDatabase.hardware[category];
+            if (data.keywords.some(keyword => lowerInput.includes(keyword))) {
+                return buildHTMLResponse("Hardware Fault", "hw", data);
+            }
+        }
+
+        // 2. Scan for specific Software categories matching user terms
+        for (const category in diagnosticDatabase.software) {
+            const data = diagnosticDatabase.software[category];
+            if (data.keywords.some(keyword => lowerInput.includes(keyword))) {
+                return buildHTMLResponse("Software Fault", "sw", data);
+            }
+        }
+
+        // 3. Expanded Fallback response covering general terms ("broken", "fail", etc.)
+        return `<span class="badge hw">General Diagnostics</span><br>
+                <b>Preliminary Assessment:</b> Undefined terminal anomaly detected during automated validation scanning sweeps.<br>
+                <b>AI Action Directives:</b>
+                <ul>
+                    <li>Perform a clean hardware shutdown sequence, disconnect all power lines for 10 seconds, and reboot.</li>
+                    <li>Verify baseline environment line connectivity states (power drops, interface patch cords, device lines).</li>
+                    <li>Document the specific physical workstation station identifier tag and present it directly to the lab desk if issues persist.</li>
+                </ul>`;
+    }
+
+    // --- HTML BUILDER HELPER ---
+    function buildHTMLResponse(badgeText, badgeClass, data) {
+        let listItems = "";
+        data.steps.forEach(step => {
+            listItems += `<li>${step}</li>`;
+        });
+
+        return `<span class="badge ${badgeClass}">${badgeText}</span><br>
+                <b>Incident Vector:</b> ${data.title}<br>
+                <b>Preliminary Assessment:</b> ${data.problems}<br>
+                <b>AI Action Directives:</b>
+                <ul>${listItems}</ul>`;
+    }
+
+    // --- CORE PROCESS REPORT FUNCTION ---
+    function processReport() {
+        const input = document.getElementById("reportInput");
+        const val = input.value.trim();
+        if (!val) return;
+
+        // 1. Instantly render the user's issue onto the screen log
+        createMessage(val, "user");
+        input.value = "";
+        saveAllData(); 
+
+        // 2. Gather master array of all clue keywords from the database
+        let masterClueWords = ["broken", "fail", "not working", "stuck", "problem", "issue", "fault", "fix"];
+        
+        for (const cat in diagnosticDatabase.hardware) {
+            masterClueWords = masterClueWords.concat(diagnosticDatabase.hardware[cat].keywords);
+        }
+        for (const cat in diagnosticDatabase.software) {
+            masterClueWords = masterClueWords.concat(diagnosticDatabase.software[cat].keywords);
+        }
+        
+        // Check if the user text includes a registered clue keyword
+        const containsClueWord = masterClueWords.some(word => val.toLowerCase().includes(word));
+
+        if (!containsClueWord) {
+            // Updated Notice notifying users to check their categories if no clue word is matched
+            setTimeout(() => {
+                createMessage(
+                    `<span class="badge sw">System Notice</span><br>` +
+                    `<b>Unable to resolve incident framework.</b> Please re-submit your query using specific indicators. ` +
+                    `Please check if your issue falls into one of these specific diagnostic matrices:<br>` +
+                    `<ul>` +
+                        `<li><b>Hardware Problems</b> (e.g., keyboard, mouse, monitor, power, fan, RAM)</li>` +
+                        `<li><b>Software Problems</b> (e.g., application crash, error, slow, virus, browser)</li>` +
+                        `<li><b>User-related Problems</b> (e.g., admin permissions, blocked, access denied, password lock)</li>` +
+                        `<li><b>Network & Maintenance Problems</b> (e.g., internet disconnect, wifi, ethernet, windows update)</li>` +
+                    `</ul>`, 
+                    "ai", 
+                    "iSeeScan Core"
+                );
+                saveAllData();
+            }, 400);
+            return;
+        }
+
+        // 3. Generate response instantly via array mapping lookup
+        setTimeout(() => {
+            const aiResponseHTML = generateManualResponse(val);
+            createMessage(aiResponseHTML, "ai", "iSeeScan Core");
+            saveAllData();
+        }, 400);
+    }
+    
+    function createMessage(c, s, t="") {
+        const box = document.getElementById("reportingLogs"); 
+        const div = document.createElement("div"); 
+        div.className = `msg ${s}`;
+        div.innerHTML = t ? `<div class="sender-header ai-color">${t}</div>${c}` : c;
+        box.appendChild(div); 
+        box.scrollTop = box.scrollHeight;
+    }
+
+    // --- LOCAL STORAGE DATA ENGINE ---
+    function saveAllData() {
+        const chatMessages = document.getElementById("reportingLogs").innerHTML;
+        localStorage.setItem("iSeeScan_chatLogs", chatMessages);
+    }
+
+    function loadSavedLogs() {
+        const savedChats = localStorage.getItem("iSeeScan_chatLogs");
+        if (savedChats) {
+            document.getElementById("reportingLogs").innerHTML = savedChats;
+            document.getElementById("reportingLogs").scrollTop = document.getElementById("reportingLogs").scrollHeight;
+        }
+    }
+</script>
+
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Show the welcome name if the user already signed in on the Home page (added) */
+    (function () {
+        var chip = document.getElementById("navbarWelcome");
+        if (chip) {
+            try {
+                chip.textContent = localStorage.getItem("userNickname") || "Guest";
+            } catch (e) {}
+        }
+    })();
+
+    /* Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+</body>
+</html>

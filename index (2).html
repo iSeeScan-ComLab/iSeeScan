@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>iSeeScan Login / Sign Up</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS SDK must load BEFORE emailjs-otp.js -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+<script src="emailjs-otp.js" defer></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* --- Background Image --- */
+.background-img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -2;
+}
+
+/* --- Darkened Gradient Overlay --- */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(3, 7, 18, 0.95) 20%, rgba(6, 11, 25, 0.9) 100%);
+  z-index: -1;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: white;
+  overflow-x: hidden;
+  padding: 20px 0;
+}
+
+/* Welcome Logo Animation */
+.welcome-logo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #060913;
+  z-index: 999;
+  animation: fadeOut 2.5s forwards;
+  pointer-events: none;
+}
+
+.welcome-logo h1 {
+  color: #00eaff;
+  font-size: 60px;
+  letter-spacing: 3px;
+  animation: fadeIn 1.2s;
+  text-shadow: 0 0 25px rgba(0, 234, 255, 0.6);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+/* Container Dark-Glass Design */
+.container {
+  background: rgba(13, 19, 33, 0.85);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  padding: 35px 30px;
+  width: min(90%, 420px);
+  border-radius: 20px;
+  text-align: center;
+  border: 1px solid rgba(0, 234, 255, 0.25);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 234, 255, 0.05);
+}
+
+h1 {
+  color: #00eaff;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  margin-bottom: 6px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 234, 255, 0.2);
+}
+
+p.subtitle {
+  color: #8fa0ba;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+/* Account Not Found / General Alert Banner */
+.alert-banner {
+  display: none;
+  background: rgba(255, 77, 77, 0.15);
+  border: 1px solid #ff4d4d;
+  color: #ff6b6b;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Form Group Layout */
+.input-group {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  color: #b0c4de;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* Password Input Field with Eye Icon Wrapper */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 42px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.toggle-eye:hover { opacity: 1; }
+
+/* Input Styles */
+input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #1a2333;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #0a0f1d;
+  color: #ffffff;
+  outline: none;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.35);
+  background: #0f1626;
+}
+
+input.invalid {
+  border-color: #ff4d4d !important;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.3) !important;
+}
+
+input.valid {
+  border-color: #00ff88 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2) !important;
+}
+
+input::placeholder { color: #43536c; }
+
+/* Inline Helper / Error Text */
+.error-msg {
+  font-size: 11px;
+  color: #ff6b6b;
+  margin-top: 5px;
+  display: block;
+  min-height: 16px;
+  line-height: 1.3;
+}
+
+.error-msg.match-success { color: #00ff88; }
+
+/* Forgot Password Options */
+.forgot-pass-container {
+  text-align: right;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.forgot-pass-link {
+  color: #00eaff;
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-pass-link:hover { text-decoration: underline; }
+
+/* Button Actions Group */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #00eaff, #0077ff);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 5px 20px rgba(0, 119, 255, 0.4);
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #00eaff;
+  border-radius: 10px;
+  background: transparent;
+  color: #00eaff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover { background: rgba(0, 234, 255, 0.15); }
+.btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 234, 255, 0.5);
+  filter: brightness(1.1);
+}
+
+/* Divider Line */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #43536c;
+  font-size: 12px;
+}
+
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #1a2333;
+}
+
+.divider span { padding: 0 10px; }
+
+/* Guest Button Style */
+.btn-guest {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(0, 234, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(10, 15, 29, 0.6);
+  color: #8fa0ba;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-guest:hover {
+  background: rgba(0, 234, 255, 0.1);
+  color: #00eaff;
+  border-color: #00eaff;
+}
+
+/* Mode Switcher Toggle */
+.mode-toggle {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #8fa0ba;
+}
+
+.mode-toggle a {
+  color: #00eaff;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mode-toggle a:hover { text-decoration: underline; }
+
+/* ============================
+   OTP Modal (Sign-Up Verification)
+   ============================ */
+/* NOTE: emailjs-otp.js toggles this with style.display = "block",
+   so we can't rely on display:flex for centering — instead the
+   overlay just needs to cover the viewport, and .otp-box centers
+   itself inside it with absolute positioning. This keeps the modal
+   centered on both mobile and desktop regardless of the display
+   value emailjs-otp.js sets. */
+.otp-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 7, 18, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.otp-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(13, 19, 33, 0.97);
+  border: 1px solid rgba(0, 234, 255, 0.3);
+  border-radius: 18px;
+  padding: 30px 26px;
+  width: min(90%, 380px);
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 234, 255, 0.08);
+}
+
+.otp-box h2 {
+  color: #00eaff;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.otp-box p {
+  font-size: 13px;
+  color: #8fa0ba;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.otp-box p span {
+  color: #00eaff;
+  font-weight: 600;
+}
+
+.otp-input-box {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #1a2333;
+  background: #0a0f1d;
+  color: #ffffff;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  outline: none;
+}
+
+.otp-input-box:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 12px rgba(0, 191, 255, 0.35);
+}
+
+.otp-error {
+  display: block;
+  font-size: 12px;
+  color: #ff6b6b;
+  min-height: 16px;
+  margin-bottom: 14px;
+}
+
+.otp-box .btn-primary { margin-bottom: 10px; }
+
+/* OTP-sent Toast Notification */
+.otp-toast {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(13, 19, 33, 0.97);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 1100;
+  max-width: 90%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.otp-toast.show {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive Customization */
+@media (max-width: 768px) {
+  body { padding: 15px; }
+  .container { width: 100%; padding: 25px 20px; }
+  .welcome-logo h1 { font-size: 42px; }
+  h1 { font-size: 30px; }
+  .otp-input-box { font-size: 18px; letter-spacing: 6px; }
+}
+</style>
+</head>
+<body>
+
+<img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+<div class="welcome-logo">
+  <h1>🔍 iSeeScan</h1>
+</div>
+
+<!-- OTP-Sent Notification Toast -->
+<div id="otpToast" class="otp-toast">📩 OTP code sent to your Gmail!</div>
+
+<div class="container">
+  <h1>iSeeScan</h1>
+  <p class="subtitle" id="formSubtitle">Access your security scanning dashboard</p>
+
+  <!-- Account Alert Box -->
+  <div id="generalAlert" class="alert-banner"></div>
+
+  <form id="loginForm" name="submit-to-google-sheet" novalidate>
+
+    <!-- Email Input -->
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input id="email" name="email" type="email" placeholder="e.g. user@gmail.com" autocomplete="off">
+      <span class="error-msg" id="emailError"></span>
+    </div>
+
+    <!-- Username Input -->
+    <div class="input-group">
+      <label for="username">Username</label>
+      <input id="username" name="username" type="text" placeholder="Enter your username" autocomplete="off">
+      <span class="error-msg" id="usernameError"></span>
+    </div>
+
+    <!-- Password Input -->
+    <div class="input-group">
+      <label for="password">Password</label>
+      <div class="password-wrapper">
+        <input id="password" name="password" type="password" placeholder="Enter your password">
+        <span class="toggle-eye" onclick="togglePasswordVisibility('password', this)">⌣</span>
+      </div>
+      <span class="error-msg" id="passwordError"></span>
+    </div>
+
+    <!-- Confirm Password Input (Hidden in Log In, Visible in Sign Up) -->
+    <div class="input-group" id="confirmPassGroup" style="display: none;">
+      <label for="confirmPassword">Confirm Password</label>
+      <div class="password-wrapper">
+        <input id="confirmPassword" type="password" placeholder="Re-enter your password">
+        <span class="toggle-eye" onclick="togglePasswordVisibility('confirmPassword', this)">⌣</span>
+      </div>
+      <span class="error-msg" id="confirmPasswordError"></span>
+    </div>
+
+    <!-- Forgot Password Link (Log In Mode) -->
+    <div class="forgot-pass-container" id="forgotPassGroup">
+      <a href="javascript:void(0)" class="forgot-pass-link" onclick="handleForgotPassword()">Forgot Password?</a>
+    </div>
+
+    <div class="button-group">
+      <button type="button" id="navSubmitBtn" class="btn-primary" onclick="handleAuthSubmit()">Log In</button>
+    </div>
+  </form>
+
+  <div class="mode-toggle" id="toggleModeContainer">
+    Don't have an account? <a onclick="switchMode('signup')">Sign Up Here</a>
+  </div>
+
+  <div class="divider">
+    <span>OR</span>
+  </div>
+
+  <!-- Guest Mode Option -->
+  <button type="button" class="btn-guest" onclick="enterAsGuest()">Continue as Guest</button>
+</div>
+
+<!-- OTP Verification Modal -->
+<div id="otpModal" class="otp-overlay">
+  <div class="otp-box">
+    <h2>Verify Your Email</h2>
+    <p>We just sent a 6-digit code to <span id="otpRecipientEmail"></span>. Enter it below to finish creating your account.</p>
+    <input id="otpInput" class="otp-input-box" type="text" inputmode="numeric" maxlength="6" placeholder="------" autocomplete="one-time-code">
+    <span id="otpError" class="otp-error"></span>
+    <button type="button" id="verifyOtpBtn" class="btn-primary">Verify & Complete Sign Up</button>
+    <button type="button" id="resendOtpBtn" class="btn-secondary">Didn't receive code? Resend OTP</button>
+  </div>
+</div>
+
+<script type="module">
+import { signUpUser, loginUser } from "./firebase.js";
+
+const emailInput = document.getElementById("email");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+
+const emailError = document.getElementById("emailError");
+const usernameError = document.getElementById("usernameError");
+const passwordError = document.getElementById("passwordError");
+const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+const confirmPassGroup = document.getElementById("confirmPassGroup");
+const forgotPassGroup = document.getElementById("forgotPassGroup");
+const generalAlert = document.getElementById("generalAlert");
+const mainAuthBtn = document.getElementById("navSubmitBtn");
+const toggleModeContainer = document.getElementById("toggleModeContainer");
+const otpToast = document.getElementById("otpToast");
+
+let currentMode = 'login';
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[_@])[a-zA-Z0-9_@]{4,20}$/;
+const passwordComplexRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+
+emailInput.addEventListener("input", () => { hideAlert(); validateEmail(); });
+usernameInput.addEventListener("input", () => { hideAlert(); validateUsername(); });
+passwordInput.addEventListener("input", () => {
+  hideAlert();
+  if (currentMode === 'signup') {
+    validatePassword();
+    validateConfirmPassword();
+  }
+});
+confirmPasswordInput.addEventListener("input", () => {
+  hideAlert();
+  validateConfirmPassword();
+});
+
+window.togglePasswordVisibility = function(inputId, eyeIcon) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    eyeIcon.textContent = "𓁺";
+  } else {
+    input.type = "password";
+    eyeIcon.textContent = "⌣";
+  }
+};
+
+function showAlert(msg) {
+  generalAlert.textContent = msg;
+  generalAlert.style.display = "block";
+}
+
+function hideAlert() {
+  generalAlert.style.display = "none";
+}
+
+// Small toast telling the user their OTP code was emailed to them
+function showOtpToast(email) {
+  if (!otpToast) return;
+  otpToast.textContent = `📩 OTP code sent to ${email}!`;
+  otpToast.classList.add("show");
+  setTimeout(() => otpToast.classList.remove("show"), 4000);
+}
+
+window.switchMode = function(mode) {
+  currentMode = mode;
+  hideAlert();
+  emailInput.value = "";
+  usernameInput.value = "";
+  passwordInput.value = "";
+  confirmPasswordInput.value = "";
+
+  [emailError, usernameError, passwordError, confirmPasswordError].forEach(e => {
+    e.textContent = "";
+    e.classList.remove("match-success");
+  });
+  [emailInput, usernameInput, passwordInput, confirmPasswordInput].forEach(inp => {
+    inp.classList.remove("valid", "invalid");
+  });
+
+  if (mode === 'signup') {
+    mainAuthBtn.textContent = "Sign Up";
+    usernameInput.placeholder = "Create a username";
+    confirmPassGroup.style.display = "block";
+    forgotPassGroup.style.display = "none";
+    toggleModeContainer.innerHTML = 'Already have an account? <a onclick="switchMode(\'login\')">Log In Here</a>';
+  } else {
+    mainAuthBtn.textContent = "Log In";
+    usernameInput.placeholder = "Enter your username";
+    confirmPassGroup.style.display = "none";
+    forgotPassGroup.style.display = "block";
+    toggleModeContainer.innerHTML = 'Don\'t have an account? <a onclick="switchMode(\'signup\')">Sign Up Here</a>';
+  }
+};
+
+function validateEmail() {
+  const value = emailInput.value.trim();
+  if (value === "") {
+    emailError.textContent = "";
+    emailInput.classList.remove("valid", "invalid");
+    return false;
+  }
+  if (!emailRegex.test(value)) {
+    emailError.textContent = "Please enter a valid email address.";
+    emailInput.classList.add("invalid");
+    emailInput.classList.remove("valid");
+    return false;
+  } else {
+    emailError.textContent = "";
+    emailInput.classList.remove("invalid");
+    emailInput.classList.add("valid");
+    return true;
+  }
+}
+
+function validateUsername() {
+  const value = usernameInput.value.trim();
+  if (value === "") {
+    usernameError.textContent = "";
+    usernameInput.classList.remove("valid", "invalid");
+    return false;
+  }
+  if (value.length < 4) {
+    usernameError.textContent = "Must be at least 4 characters long.";
+    usernameInput.classList.add("invalid");
+    usernameInput.classList.remove("valid");
+    return false;
+  }
+  if (!usernameRegex.test(value)) {
+    usernameError.textContent = "Must include letters, numbers, and special characters (_ or @).";
+    usernameInput.classList.add("invalid");
+    usernameInput.classList.remove("valid");
+    return false;
+  } else {
+    usernameError.textContent = "";
+    usernameInput.classList.remove("invalid");
+    usernameInput.classList.add("valid");
+    return true;
+  }
+}
+
+function validatePassword() {
+  const value = passwordInput.value;
+  if (value === "") {
+    passwordError.textContent = "";
+    passwordInput.classList.remove("valid", "invalid");
+    return false;
+  }
+  if (!passwordComplexRegex.test(value)) {
+    passwordError.textContent = "Password must be at least 6 characters with letters, numbers & symbols.";
+    passwordInput.classList.add("invalid");
+    passwordInput.classList.remove("valid");
+    return false;
+  } else {
+    passwordError.textContent = "";
+    passwordInput.classList.remove("invalid");
+    passwordInput.classList.add("valid");
+    return true;
+  }
+}
+
+function validateConfirmPassword() {
+  const passVal = passwordInput.value;
+  const confirmVal = confirmPasswordInput.value;
+  if (confirmVal === "") {
+    confirmPasswordError.textContent = "";
+    confirmPasswordError.classList.remove("match-success");
+    confirmPasswordInput.classList.remove("valid", "invalid");
+    return false;
+  }
+  if (confirmVal !== passVal) {
+    confirmPasswordError.textContent = "❌ Passwords do not match!";
+    confirmPasswordError.classList.remove("match-success");
+    confirmPasswordInput.classList.add("invalid");
+    confirmPasswordInput.classList.remove("valid");
+    return false;
+  } else {
+    confirmPasswordError.textContent = "✓ Passwords match!";
+    confirmPasswordError.classList.add("match-success");
+    confirmPasswordInput.classList.remove("invalid");
+    confirmPasswordInput.classList.add("valid");
+    return true;
+  }
+}
+
+// Called by emailjs-otp.js's verifyAndCreateAccount() once the OTP is confirmed
+async function completeSignUp(email, password, username) {
+  const user = await signUpUser(email, password, username);
+  localStorage.setItem("userEmail", user.email);
+  localStorage.setItem("userNickname", username);
+  localStorage.setItem("userRole", "Registered User");
+  window.location.href = "main.html";
+}
+// Exposed so emailjs-otp.js's alert/flow can be extended later if needed
+window.completeSignUp = completeSignUp;
+
+window.handleAuthSubmit = async function() {
+  const isEmailValid = validateEmail();
+  const isUsernameValid = validateUsername();
+
+  if (!emailInput.value.trim()) {
+    emailError.textContent = "Email is required.";
+    emailInput.classList.add("invalid");
+  }
+  if (!usernameInput.value.trim()) {
+    usernameError.textContent = "Username is required.";
+    usernameInput.classList.add("invalid");
+  }
+  if (!passwordInput.value) {
+    passwordError.textContent = "Password is required.";
+    passwordInput.classList.add("invalid");
+  }
+
+  if (!isEmailValid || !isUsernameValid) return;
+
+  const email = emailInput.value.trim().toLowerCase();
+  const username = usernameInput.value.trim();
+  const password = passwordInput.value;
+
+  if (currentMode === 'signup') {
+    const isPasswordValid = validatePassword();
+    const isConfirmMatch = validateConfirmPassword();
+    if (!isPasswordValid || !isConfirmMatch) return;
+
+    if (typeof initiateOTPFlow !== "function") {
+      showAlert("⚠️ OTP verification is unavailable right now. Please refresh and try again.");
+      return;
+    }
+
+    // Sends the OTP email, opens the OTP modal, and — only after the
+    // code is verified — calls completeSignUp(email, password, username).
+    await initiateOTPFlow({ email, password, username }, completeSignUp);
+    showOtpToast(email);
+    return;
+  }
+
+  // Log in flow
+  const originalBtnText = mainAuthBtn.textContent;
+  mainAuthBtn.textContent = "Please wait...";
+  mainAuthBtn.disabled = true;
+
+  try {
+    const user = await loginUser(email, password);
+    localStorage.setItem("userEmail", user.email);
+    localStorage.setItem("userNickname", user.displayName || username);
+    localStorage.setItem("userRole", "Registered User");
+    window.location.href = "main.html";
+  } catch (err) {
+    console.error("Firebase Auth error:", err);
+    if (err.code === 'auth/email-already-in-use') {
+      showAlert("⚠️ An account with this email already exists!");
+    } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+      showAlert("⚠️ Account not found or invalid credentials!");
+      emailInput.classList.add("invalid");
+      usernameInput.classList.add("invalid");
+      passwordInput.classList.add("invalid");
+    } else {
+      showAlert("⚠️ " + err.message);
+    }
+  } finally {
+    mainAuthBtn.textContent = originalBtnText;
+    mainAuthBtn.disabled = false;
+  }
+};
+
+window.enterAsGuest = function() {
+  localStorage.setItem("userNickname", "Guest");
+  localStorage.setItem("userRole", "Guest");
+  window.location.href = "main.html";
+};
+</script>
+
+</body>
+</html>

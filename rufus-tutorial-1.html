@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>iSeeScan - Rufus Comprehensive Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        /* --- Fix: Stretches the repository image across the viewport --- */
+        .background-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        /* --- Fix: Highly darkened overlay so the motherboard blends in like the main page --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(3, 7, 18, 0.97) 20%, rgba(6, 11, 25, 0.92) 100%);
+            z-index: -1;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 35px;
+            background: rgba(255,255,255,.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,234,255,.25);
+            border-radius: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .back-link { color: #00eaff; background: none; border: none; font-size: 16px; cursor: pointer; text-decoration: none; font-weight: 500; }
+        
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { color: #00eaff; text-shadow: 0 0 15px cyan; margin: 0; font-size: 32px; }
+        header p { color: #e5faff; font-size: 15px; margin-top: 5px; }
+
+        .section-title {
+            display: block;
+            color: #00eaff;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 40px 0 20px 0;
+            border-bottom: 2px solid rgba(0,234,255,.2);
+            padding-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0,234,255,0.3);
+        }
+
+        .tutorial-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step-card {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(0, 234, 255, 0.2);
+            border-radius: 18px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: transform 0.2s ease, border 0.2s ease;
+        }
+
+        .step-card:hover {
+            border-color: #00eaff;
+            transform: translateX(4px);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .step-badge {
+            background: linear-gradient(135deg, #FF3366, #FF6699);
+            color: white;
+            font-weight: 900;
+            font-size: 16px;
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.4);
+        }
+        
+        .blue-badge {
+            background: linear-gradient(135deg, #0055ff, #00aaff);
+            box-shadow: 0 0 10px rgba(0, 170, 255, 0.4);
+        }
+
+        .step-title { font-weight: 700; font-size: 18px; color: #00eaff; }
+        .step-desc { font-size: 14px; color: #e5faff; line-height: 1.6; }
+        .step-desc p { margin: 0 0 12px 0; }
+        .step-desc p:last-child { margin-bottom: 0; }
+        .step-desc ul { margin: 8px 0; padding-left: 20px; }
+        .step-desc li { margin-bottom: 4px; }
+        
+        .component-img {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 234, 255, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            display: block;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .component-img:hover {
+            opacity: 0.9;
+        }
+
+        .pdf-footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 234, 255, 0.1);
+            border: 1px dashed #00eaff;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            color: #e5faff;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .container { padding: 20px; border-radius: 18px; }
+            header h1 { font-size: 24px !important; }
+            header p { font-size: 13px; }
+            .section-title { font-size: 20px; margin: 30px 0 15px 0; }
+            .step-card { padding: 18px; }
+            .step-title { font-size: 16px; }
+            .step-desc { font-size: 13px; }
+            .component-img { max-width: 100%; }
+        }
+    
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="navbar-logo-emoji">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <a href="main.html" class="navbar-account-btn" title="Go to Home / Sign in">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item active">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+</div>
+
+<div class="navbar-spacer"></div>
+
+
+    <!-- Fix: Pulls the repository file dynamically into the HTML layout -->
+    <img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+
+    <div class="container">
+        <div class="top-bar">
+            <a href="main.html" class="back-link">⬅ Back to Dashboard</a>
+        </div>
+        
+        <header>
+            <h1>💾 Rufus Deployment Center</h1>
+            <p>Laboratory Installation & Configuration Documentation</p>
+        </header>
+
+        <!-- ==========================================
+           SECTION 1: QUICK STEPS
+        ========================================== -->
+        <span class="section-title">Using Rufus: Quick Steps</span>
+        
+        <div class="tutorial-grid">
+            <div class="step-card"><div class="step-desc">Open Rufus and insert a USB drive.</div></div>
+            <div class="step-card"><div class="step-desc">Select your USB drive under "Device."</div></div>
+            <div class="step-card"><div class="step-desc">Click SELECT and select an ISO file.</div></div>
+            <div class="step-card"><div class="step-desc">Give your Volume label a name (optional).</div></div>
+            <div class="step-card"><div class="step-desc">Click START.</div></div>
+        </div>
+
+        <!-- ==========================================
+           SECTION 2: DETAILED WALKTHROUGH
+        ========================================== -->
+        <span class="section-title">Using Rufus: Detailed Guide</span>
+
+        <div class="tutorial-grid">
+            <!-- Step 1 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">1</div>
+                    <div class="step-title">Download and install Rufus.</div>
+                </div>
+                <div class="step-desc">
+                    <p>You can download Rufus at rufus.ie. Click one of the download links below the “Download” header. Be sure to download the correct version for your system's processor (i.e., 64-bit, 32-bit, ARM64).</p>
+                    <p>To find out your system architecture, click the Windows Start icon and then click the Settings icon. Click System followed by About. Check your system architecture next to "System Type."</p>
+                    <p>Rufus is only available for Windows. It is not available for Mac or Linux.</p>
+                </div>
+                <img src="images/download-rufus.png" class="component-img" alt="Download and install Rufus" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">2</div>
+                    <div class="step-title">Launch Rufus.</div>
+                </div>
+                <div class="step-desc">
+                    <p>By default, your downloaded files can be found in your Downloads folder. Double-click Rufus to launch the application when the download is complete. No additional installation steps are necessary.</p>
+                </div>
+                <img src="images/rufus-step1.png" class="component-img" alt="Launch Rufus" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 3 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">3</div>
+                    <div class="step-title">Insert a USB drive.</div>
+                </div>
+                <div class="step-desc">
+                    <p>You can insert it in any free USB port on your PC. You'll need a USB drive that is big enough to hold the ".ISO" file you want to write to the USB drive.</p>
+                    <p>Most modern operating systems require a USB drive with at least 4 GB of hard drive space. You should get a USB drive with 8 GB or more of hard drive space.</p>
+                    <p>Rufus will format and erase all data from your USB drive. Transfer any personal files stored on the USB drive to your computer before using Rufus.</p>
+                    <p>Make sure you are using a USB-A type flash drive. Many computers can’t boot from a USB-C type flash drive.</p>
+                </div>
+                <img src="images/rufus-step2.png" class="component-img" alt="Insert a USB drive" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 4 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">4</div>
+                    <div class="step-title">Select your USB drive if needed.</div>
+                </div>
+                <div class="step-desc">
+                    <p>When you insert a USB drive, Rufus will usually detect it automatically. If needed, select your USB drive using the "Device" drop-down menu.</p>
+                    <p>In most cases, your USB drive will be listed as “No_Label.”</p>
+                </div>
+                <img src="images/rufus-step3.png" class="component-img" alt="Select your USB drive if needed" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 5 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">5</div>
+                    <div class="step-title">Click SELECT.</div>
+                </div>
+                <div class="step-desc">
+                    <p>It's the button on the right-hand side. This opens a file browser that you can use to select an ISO image.</p>
+                    <p>Alternatively, if you want to download a Windows ISO file, click the arrow pointing down next to the "Select" button and select DOWNLOAD. Then, click the DOWNLOAD button. Use the drop-down menu to select the version of Windows you want to download and click Continue.</p>
+                </div>
+                <img src="images/rufus-step4.png" class="component-img" alt="Click SELECT" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 6 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">6</div>
+                    <div class="step-title">Select an ISO file.</div>
+                </div>
+                <div class="step-desc">
+                    <p>Navigate to where you downloaded the ISO file you want to write to the USB drive, select it, and click Open.</p>
+                    <p>In most cases, you will want to leave the "Partition Scheme," "Target System," and "Image Option" as the default. Rufus can detect these settings automatically.</p>
+                    <p>You can download the Linux Ubuntu ISO file from ubuntu.com/download.</p>
+                </div>
+                <img src="images/rufus-step5.png" class="component-img" alt="Select an ISO file" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 7 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">7</div>
+                    <div class="step-title">Give the volume label a name (optional).</div>
+                </div>
+                <div class="step-desc">
+                    <p>If you want to give your USB drive a name, enter it in the "Volume Label" field. Otherwise, leave it as is.</p>
+                </div>
+                        <img src="images/rufus-step6.png" class="component-img" alt="Give the volume label a name" onclick="zoomImage(this)">
+            </div>
+
+            <!-- Step 8 -->
+
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge blue-badge">8</div>
+                    <div class="step-title">Click START.</div>
+                </div>
+                <div class="step-desc">
+                    <p>It's at the bottom in the lower-right corner. This will start writing the ISO file for Rufus. This may take several minutes.</p>
+                    <p>You may receive a message warning you that any data on the USB drive will be destroyed. This is normal. Click OK to continue.</p>
+                    <p>Do not remove your USB drive until the process is complete.</p>
+                </div>
+                <img src="images/rufus-step7.png" class="component-img" alt="Click START" onclick="zoomImage(this)">
+            </div>
+        </div>
+
+        <!-- ==========================================
+           SECTION 3: TROUBLESHOOTING
+        ========================================== -->
+        <span class="section-title">Troubleshooting</span>
+
+        <div class="tutorial-grid">
+
+            <!-- Troubleshooting Step 1 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge">1</div>
+                    <div class="step-title">Device Detection & Verification</div>
+                </div>
+                <img src="images/troubleshooting-step1.png" class="component-img" alt="Device Detection Troubleshooting" onclick="zoomImage(this)">
+                <div class="step-desc">
+                    <p><b>Place a check mark next to “List USB Hard Drives.”</b> Some USB drives may not be compatible with Rufus. Click the arrow icon next to "Show advanced drive properties" and click the checkbox next to "List USB Hard Drives."</p>
+                    <p><b>Try running Rufus as an administrator.</b> If you get an error message that says the creation failed or that Rufus cannot make the USB bootable, try running Rufus as an administrator. To do so, right-click the Rufus launch file and click Run as administrator.</p>
+                    <p><b>Try using a different USB port.</b> If your computer is having a hard time detecting or reading your USB drive, try plugging it into a different port. There may be a problem with the port you are using.</p>
+                </div>
+            </div>
+
+            <!-- Troubleshooting Step 2 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge">2</div>
+                    <div class="step-title">Media Constraints & Partitioning Issues</div>
+                </div>
+                <img src="images/troubleshooting-step2.png" class="component-img" alt="Media Constraints Troubleshooting" onclick="zoomImage(this)">
+                <div class="step-desc">
+                    <p><b>Try using another USB flash drive.</b> If you receive an error message that says the USB drive doesn't have enough space or that it has no media on it, you will need to use another USB drive. If it’s an older USB drive, it may not work as well as it once did.</p>
+                    <p><b>Try formatting the USB drive before using Rufus.</b> If you are having issues writing an ISO file to a USB drive, try formatting the USB drive in Windows before using Rufus. To do so, right-click the USB drive in File Explorer and click Format. Choose NTFS, exFAT, or FAT32 as the file system, and then click Start.</p>
+                    <p><b>Choose the correct partition scheme.</b> If you are using an older computer, you may need to choose MBR as the partition scheme. For computers that run newer UEFI hardware, select GPT.</p>
+                </div>
+            </div>
+
+            <!-- Troubleshooting Step 3 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge">3</div>
+                    <div class="step-title">System Mount Controls & Image Corruptions</div>
+                </div>
+                <img src="images/troubleshooting-step3.png" class="component-img" alt="System Controls Troubleshooting" onclick="zoomImage(this)">
+                <div class="step-desc">
+                    <p><b>Try re-enabling automounting on your computer.</b> If you receive the message, “Error: [0x00000015] The device is not ready,” you may have previously disabled automounting. Use the following steps to re-enable it.</p>
+                    <ul>
+                        <li>Type “cmd” into the search box in Start or Windows Explorer.</li>
+                        <li>Right-click cmd.exe, then select Run as administrator.</li>
+                        <li>Type “mountvol /e” into the dialog box, then press Enter.</li>
+                        <li>Close the command prompt window, then try using Rufus again.</li>
+                    </ul>
+                    <p><b>Download a fresh copy of the ISO file.</b> If there is a problem writing the ISO file to a USB drive, the ISO file may be corrupt. Try downloading a fresh copy of it. Make sure you download it from an official source.</p>
+                </div>
+            </div>
+
+            <!-- Troubleshooting Step 4 -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-badge">4</div>
+                    <div class="step-title">BIOS Configuration & Mainboard Handshakes</div>
+                </div>
+                <img src="images/troubleshooting-step4.png" class="component-img" alt="BIOS Configuration Troubleshooting" onclick="zoomImage(this)">
+                <div class="step-desc">
+                    <p><b>Change your PC's boot order.</b> To boot from a USB drive, you will need to boot into your computer's BIOS and set the boot order to boot from a USB drive before your hard drive.</p>
+                    <p><b>Switch ports for older legacy hardware.</b> If your PC is having trouble booting from the USB drive, try switching to a different USB 2.0 port. Some older PCs may have issues with USB 3.0 or higher.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==========================================
+           ARTICLE PDF DOWNLOAD CALLOUT FOOTER
+        ========================================== -->
+        <div class="pdf-footer">
+            📄 If the steps above have been helpful, don't forget to send a feedback in our website for more helpful information.
+        </div>
+
+    </div>
+
+    <script>
+        function zoomImage(imgElement) {
+            console.log("Zooming image:", imgElement.src);
+        }
+    </script>
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Show the welcome name if the user already signed in on the Home page (added) */
+    (function () {
+        var chip = document.getElementById("navbarWelcome");
+        if (chip) {
+            try {
+                chip.textContent = localStorage.getItem("userNickname") || "Guest";
+            } catch (e) {}
+        }
+    })();
+
+    /* Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+</body>
+</html>

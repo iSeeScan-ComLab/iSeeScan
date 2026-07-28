@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Related Problems - iSeeScan</title>
+
+<style>
+
+/* --- Fix: Stretches the repository image across the viewport --- */
+.background-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2;
+}
+
+/* --- Fix: Highly darkened overlay so the motherboard blends in like the main page --- */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(3, 7, 18, 0.97) 20%, rgba(6, 11, 25, 0.92) 100%);
+    z-index: -1;
+}
+
+.separator{
+    height:2px;
+    background:linear-gradient(to right, transparent, #00eaff, transparent);
+    margin:15px 0;
+    border-radius:5px;
+}
+
+.content-wrapper{
+    position: relative;
+    z-index: 1;
+    width: min(95%,1000px);
+    margin:auto;
+}
+
+.back-container{
+    max-width:1000px;
+    margin:30px auto;
+    text-align:center;
+    position: relative;
+    z-index: 1;
+}
+
+.backBtn{
+    display:block;
+    width:100%;
+    text-align:center;
+    padding:14px;
+    background:#00eaff;
+    color:#111827;
+    text-decoration:none;
+    border-radius:15px;
+    font-weight:bold;
+    box-sizing:border-box;
+    transition:.3s;
+}
+
+.backBtn:hover{
+    background:#ffffff;
+    transform:translateY(-2px);
+}
+
+#searchBar{
+    width:100%;
+    padding:15px 20px;
+    margin:25px 0;
+    border:none;
+    border-radius:30px;
+    outline:none;
+    font-size:17px;
+    background:#1f2937;
+    color:white;
+    box-sizing:border-box;
+    box-shadow:0 0 20px rgba(0,234,255,.35);
+    transition:.3s;
+}
+
+#searchBar:focus{
+    box-shadow:0 0 25px cyan;
+    transform:scale(1.02);
+}
+
+#searchBar::placeholder{
+    color:#aaa;
+}
+
+body{
+    margin:0;
+    padding:30px;
+    font-family:'Poppins',sans-serif;
+    color:white;
+}
+
+h1{
+    position: relative;
+    z-index: 1;
+    color:#00eaff;
+    text-align:center;
+}
+
+.problem{
+    background: linear-gradient(145deg, rgba(255, 255, 255, .04), rgba(0, 234, 255, .02));
+
+    backdrop-filter:blur(15px);
+
+    border:1px solid rgba(0,234,255,.25);
+
+    padding:22px;
+
+    margin:18px auto;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    transition:.35s;
+
+    max-width:1000px;
+}
+
+
+.problem:hover{
+    transform:translateY(-6px);
+    background: rgba(36, 59, 85, 0.4);
+    box-shadow:0 15px 35px rgba(0, 234, 255,.25);
+}
+
+
+
+.solution{
+    display:none;
+    margin-top:18px;
+    padding:22px;
+    background:#0b1220;
+    border-left:6px solid cyan;
+    border-radius:18px;
+    animation:slideDown .35s;
+}
+
+
+
+.tutorial{
+    line-height:2;
+    color:#d6eaff;
+    font-size:15px;
+}
+
+
+
+@keyframes slideDown{
+
+from{
+
+opacity:0;
+
+transform:translateY(-15px);
+
+}
+
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
+a{
+
+    color:#00eaff;
+    text-decoration:none;
+
+}
+
+@media(max-width:768px){
+
+body{
+padding:18px;
+}
+
+h1{
+font-size:32px;
+}
+
+#searchBar{
+width:100%;
+font-size:16px;
+padding:13px;
+}
+
+.problem{
+padding:18px;
+}
+
+.solution{
+padding:18px;
+}
+
+.tutorial{
+font-size:14px;
+}
+
+.backBtn{
+width:100%;
+}
+
+}
+
+@media(min-width:1200px){
+
+.problem{
+max-width:1100px;
+}
+
+#searchBar{
+max-width:700px;
+}
+
+}
+
+
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-links { display: none; }
+            .navbar-actions { display: none; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+                opacity: 0;
+                transform: scale(0.85);
+                pointer-events: none;
+            }
+            .menu-btn.show-on-scroll {
+                opacity: 1;
+                transform: scale(1);
+                pointer-events: auto;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { font-size: 24px; }
+        }
+    </style>
+
+</head>
+
+
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <span class="navbar-logo-emoji">🔍</span>
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <a href="main.html" class="navbar-account-btn" title="Go to Home / Sign in">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item active">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+</div>
+
+<div class="navbar-spacer"></div>
+
+
+<!-- Fix: Pulls the repository file dynamically into the HTML layout -->
+<img src="motherboard-background.png" class="background-img" alt="motherboard-background">
+
+<h1>User Related Problems</h1>
+
+<h3 id="counter"></h3>
+
+<div class="content-wrapper">
+
+<div class="back-container">
+    <a href="main.html" class="backBtn">← Back to Categories</a>
+</div>
+
+<input
+type="text"
+id="searchBar"
+placeholder="🔍 Search user problem..."
+onkeyup="searchProblem()">
+
+<div id="content"></div>
+
+<div class="back-container">
+    <a href="main.html" class="backBtn">← Back to Categories</a>
+</div>
+
+</div>
+
+<script>
+
+
+let userProblems = [
+
+["Forgot password","Use account recovery or request administrator assistance.","Step 1: Go to the login page.\nStep 2: Click Forgot Password.\nStep 3: Enter your email or username.\nStep 4: Check your email for reset link.\nStep 5: Create a new password."],
+
+["Wrong login details","Check username and password before logging in.","Step 1: Double-check username spelling.\nStep 2: Verify password carefully.\nStep 3: Turn off caps lock if enabled.\nStep 4: Re-enter login details.\nStep 5: Try logging in again."],
+
+["User installed unsafe software","Remove unauthorized applications.","Step 1: Open Control Panel or Settings.\nStep 2: Find installed apps.\nStep 3: Locate unsafe or unknown software.\nStep 4: Uninstall the suspicious program.\nStep 5: Restart the computer."],
+
+["Incorrect computer shutdown","Use proper shutdown procedure.","Step 1: Close all running programs.\nStep 2: Click Start menu.\nStep 3: Select Shut Down option.\nStep 4: Wait for system to power off.\nStep 5: Avoid forcing shutdown using power button."],
+
+["Accidental file deletion","Restore files from backup.","Step 1: Open Recycle Bin.\nStep 2: Locate deleted file.\nStep 3: Right-click and select Restore.\nStep 4: Check original folder.\nStep 5: Create backup for future safety."],
+
+["Wrong settings changed","Restore default settings.","Step 1: Open Settings menu.\nStep 2: Find Reset or Restore option.\nStep 3: Select Restore Defaults.\nStep 4: Confirm changes.\nStep 5: Restart system."],
+
+["User cannot operate software","Provide proper training.","Step 1: Identify the software issue.\nStep 2: Explain basic functions.\nStep 3: Demonstrate correct usage.\nStep 4: Let user practice.\nStep 5: Provide guide for reference."],
+
+["Opening unknown files","Avoid suspicious files.","Step 1: Check file source.\nStep 2: Scan file using antivirus.\nStep 3: Do not open unknown files.\nStep 4: Delete suspicious files.\nStep 5: Use trusted sources only."],
+
+["Saving files incorrectly","Teach proper file organization.","Step 1: Choose correct folder.\nStep 2: Use proper file name.\nStep 3: Click Save As option.\nStep 4: Confirm file location.\nStep 5: Check file after saving."],
+
+["Using weak passwords","Create stronger passwords.","Step 1: Go to account settings.\nStep 2: Select Change Password.\nStep 3: Use strong combination (letters, numbers, symbols).\nStep 4: Save new password.\nStep 5: Do not share password."],
+
+["Sharing passwords","Keep accounts secure.","Step 1: Do not share login details.\nStep 2: Enable account security settings.\nStep 3: Change password immediately if shared.\nStep 4: Log out from other devices.\nStep 5: Keep password private."],
+
+["Installing unnecessary programs","Remove unused applications.","Step 1: Open installed apps list.\nStep 2: Identify unused programs.\nStep 3: Uninstall unnecessary apps.\nStep 4: Restart computer.\nStep 5: Monitor system performance."],
+
+["Ignoring updates","Install important updates regularly.","Step 1: Open system settings.\nStep 2: Go to Updates section.\nStep 3: Check for updates.\nStep 4: Install updates.\nStep 5: Restart system."],
+
+["Not following lab rules","Provide user guidelines.","Step 1: Read lab rules carefully.\nStep 2: Follow instructor instructions.\nStep 3: Use computers properly.\nStep 4: Avoid misuse of equipment.\nStep 5: Report issues immediately."],
+
+["Wrong printer usage","Teach correct printing steps.","Step 1: Open document.\nStep 2: Select Print option.\nStep 3: Choose correct printer.\nStep 4: Adjust settings.\nStep 5: Click Print."],
+
+["Changing system settings","Limit user permissions.","Step 1: Open settings menu.\nStep 2: Check permissions.\nStep 3: Restrict admin access.\nStep 4: Monitor changes.\nStep 5: Restore default settings if needed."],
+
+["Downloading unsafe files","Use trusted sources only.","Step 1: Check website reliability.\nStep 2: Avoid unknown downloads.\nStep 3: Scan files before opening.\nStep 4: Delete unsafe files.\nStep 5: Use antivirus protection."],
+
+["Improper computer handling","Practice careful device usage.","Step 1: Handle device gently.\nStep 2: Avoid eating near computer.\nStep 3: Keep area clean.\nStep 4: Turn off properly.\nStep 5: Store safely."],
+
+["Not logging out","Always sign out after use.","Step 1: Click user icon.\nStep 2: Select Sign Out.\nStep 3: Close all programs.\nStep 4: Wait for logout.\nStep 5: Secure session."],
+
+["Deleting important files","Check before deleting.","Step 1: Review file content.\nStep 2: Confirm if file is important.\nStep 3: Backup important files.\nStep 4: Delete carefully.\nStep 5: Check Recycle Bin."],
+
+["Using too many programs","Close unused applications.","Step 1: Open Task Manager.\nStep 2: Check running apps.\nStep 3: Close unnecessary programs.\nStep 4: Free system memory.\nStep 5: Restart if needed."],
+
+["Incorrect internet usage","Follow network policies.","Step 1: Use internet responsibly.\nStep 2: Avoid unsafe websites.\nStep 3: Follow school rules.\nStep 4: Do not download illegal files.\nStep 5: Report issues."],
+
+["User cannot troubleshoot","Provide basic troubleshooting guide.","Step 1: Identify problem.\nStep 2: Restart system.\nStep 3: Check connections.\nStep 4: Apply basic fixes.\nStep 5: Ask help if needed."],
+
+["Forgot account information","Use recovery options.","Step 1: Click Forgot Account.\nStep 2: Enter recovery email.\nStep 3: Follow reset steps.\nStep 4: Create new credentials.\nStep 5: Save securely."],
+
+["Incorrect keyboard usage","Provide keyboard guidance.","Step 1: Identify correct key layout.\nStep 2: Practice typing properly.\nStep 3: Avoid force pressing keys.\nStep 4: Clean keyboard regularly.\nStep 5: Use correctly."],
+
+["Poor file management","Organize files properly.","Step 1: Create folders.\nStep 2: Name files correctly.\nStep 3: Sort by category.\nStep 4: Delete duplicates.\nStep 5: Maintain organization."],
+
+["Ignoring warnings","Read system notifications.","Step 1: Read warning messages.\nStep 2: Identify issue.\nStep 3: Follow instructions.\nStep 4: Do not ignore alerts.\nStep 5: Fix issue immediately."],
+
+["Not reporting problems","Inform administrator immediately.","Step 1: Identify issue.\nStep 2: Record problem details.\nStep 3: Report to admin.\nStep 4: Wait for solution.\nStep 5: Follow instructions."],
+
+["Using unauthorized devices","Allow approved devices only.","Step 1: Check device approval.\nStep 2: Do not plug unknown devices.\nStep 3: Ask permission first.\nStep 4: Remove unauthorized devices.\nStep 5: Follow policy."],
+
+["Wrong software settings","Reset configurations.","Step 1: Open settings.\nStep 2: Find reset option.\nStep 3: Restore default.\nStep 4: Save changes.\nStep 5: Restart software."],
+
+["Not checking cables","Check connections first.","Step 1: Inspect cables.\nStep 2: Ensure proper connection.\nStep 3: Replace damaged wires.\nStep 4: Reconnect properly.\nStep 5: Test system."],
+
+["Improper cleaning","Follow cleaning procedures.","Step 1: Turn off device.\nStep 2: Use proper cleaning tools.\nStep 3: Avoid liquid damage.\nStep 4: Clean carefully.\nStep 5: Turn on device."],
+
+["Not restarting computer","Restart when required.","Step 1: Save work.\nStep 2: Close programs.\nStep 3: Click Restart.\nStep 4: Wait reboot.\nStep 5: Continue work."],
+
+["Ignoring maintenance reminders","Perform scheduled maintenance.","Step 1: Check reminders.\nStep 2: Follow maintenance schedule.\nStep 3: Clean system.\nStep 4: Update software.\nStep 5: Record maintenance."],
+
+["Using incorrect applications","Use approved programs.","Step 1: Identify correct app.\nStep 2: Install approved software.\nStep 3: Avoid unknown apps.\nStep 4: Use properly.\nStep 5: Ask admin if unsure."],
+
+["Not protecting files","Create backups.","Step 1: Select important files.\nStep 2: Copy to backup drive.\nStep 3: Use cloud storage.\nStep 4: Verify backup.\nStep 5: Update regularly."],
+
+["Multiple failed logins","Wait or reset account.","Step 1: Stop login attempts.\nStep 2: Wait lock period.\nStep 3: Reset password.\nStep 4: Try again.\nStep 5: Secure account."],
+
+["Wrong network settings","Follow network instructions.","Step 1: Open network settings.\nStep 2: Check configuration.\nStep 3: Reset if needed.\nStep 4: Reconnect internet.\nStep 5: Test connection."],
+
+["Not asking for assistance","Report technical problems.","Step 1: Identify issue.\nStep 2: Ask help.\nStep 3: Provide details.\nStep 4: Follow instructions.\nStep 5: Learn solution."],
+
+["Poor computer habits","Follow proper computer practices.","Step 1: Use responsibly.\nStep 2: Avoid misuse.\nStep 3: Follow rules.\nStep 4: Maintain cleanliness.\nStep 5: Improve habits."],
+
+["Incorrect file sharing","Use secure sharing methods.","Step 1: Choose secure platform.\nStep 2: Set permissions.\nStep 3: Share link safely.\nStep 4: Avoid public exposure.\nStep 5: Verify access."],
+
+["Not checking storage","Monitor disk space.","Step 1: Open storage settings.\nStep 2: Check available space.\nStep 3: Delete unnecessary files.\nStep 4: Free space regularly.\nStep 5: Monitor usage."],
+
+["Using outdated software","Update applications.","Step 1: Check updates.\nStep 2: Download latest version.\nStep 3: Install update.\nStep 4: Restart software.\nStep 5: Verify version."],
+
+["Not following security rules","Follow cybersecurity guidelines.","Step 1: Read security rules.\nStep 2: Use strong passwords.\nStep 3: Avoid suspicious links.\nStep 4: Update antivirus.\nStep 5: Report threats."],
+
+["Too many browser tabs open",
+"Close unnecessary tabs to free memory.",
+"Step 1: Look at all open browser tabs.\nStep 2: Close tabs you are not using.\nStep 3: Restart the browser.\nStep 4: Check system performance.\nStep 5: Avoid opening too many tabs at once."],
+
+["Too many startup apps enabled",
+"Disable unnecessary startup programs.",
+"Step 1: Open Task Manager.\nStep 2: Go to Startup tab.\nStep 3: Disable unnecessary apps.\nStep 4: Restart computer.\nStep 5: Check if boot is faster."],
+
+["Background apps consuming resources",
+"Close background processes to improve speed.",
+"Step 1: Open Task Manager.\nStep 2: Check CPU and RAM usage.\nStep 3: End unnecessary background apps.\nStep 4: Restart heavy applications.\nStep 5: Monitor performance."],
+
+["Poor internet browsing habits slowing system",
+"Avoid unsafe or heavy websites.",
+"Step 1: Close heavy websites with ads.\nStep 2: Avoid unknown pop-up sites.\nStep 3: Clear browser cache.\nStep 4: Restart browser.\nStep 5: Use trusted websites only."],
+
+["Large files downloaded without checking system capacity",
+"Check storage before downloading files.",
+"Step 1: Open storage settings.\nStep 2: Check available space.\nStep 3: Delete unnecessary files.\nStep 4: Move large files to external storage.\nStep 5: Continue downloading safely."],
+
+["User forgets to close unused software after use",
+"Close unused applications to save memory.",
+"Step 1: Check all open applications.\nStep 2: Close programs not in use.\nStep 3: Open Task Manager to confirm.\nStep 4: Restart system if still slow.\nStep 5: Practice proper usage habits."],
+
+["Installing too many extensions in browser",
+"Remove unnecessary browser extensions.",
+"Step 1: Open browser settings.\nStep 2: Go to Extensions menu.\nStep 3: Remove unused extensions.\nStep 4: Restart browser.\nStep 5: Check performance improvement."],
+
+["User ignores low storage warning",
+"Free up disk space immediately.",
+"Step 1: Open storage warning message.\nStep 2: Delete temporary files.\nStep 3: Uninstall unused apps.\nStep 4: Empty recycle bin.\nStep 5: Restart system."],
+
+["Frequent switching between heavy applications",
+"Avoid multitasking heavy programs.",
+"Step 1: Identify heavy applications running.\nStep 2: Close unused programs.\nStep 3: Use one heavy app at a time.\nStep 4: Monitor RAM usage.\nStep 5: Restart if system lags."],
+
+["User ignores antivirus warnings",
+"Follow security alerts immediately.",
+"Step 1: Read antivirus warning.\nStep 2: Do not ignore notifications.\nStep 3: Scan system immediately.\nStep 4: Remove detected threats.\nStep 5: Restart computer."],
+
+["Downloading multiple files at once",
+"Limit simultaneous downloads.",
+"Step 1: Pause unnecessary downloads.\nStep 2: Download one file at a time.\nStep 3: Check internet speed.\nStep 4: Resume important downloads first.\nStep 5: Monitor system performance."],
+
+["Using unsupported or outdated software versions",
+"Update software regularly.",
+"Step 1: Open software settings.\nStep 2: Check for updates.\nStep 3: Install latest version.\nStep 4: Restart application.\nStep 5: Verify proper functioning."],
+
+["User ignores system restart requests after updates",
+"Restart system after updates complete.",
+"Step 1: Save all work.\nStep 2: Click restart when prompted.\nStep 3: Allow update process to finish.\nStep 4: Do not interrupt restart.\nStep 5: Check system performance."],
+
+["Too many files saved on desktop",
+"Organize desktop files properly.",
+"Step 1: Check desktop icons.\nStep 2: Move files into folders.\nStep 3: Delete unnecessary shortcuts.\nStep 4: Keep desktop clean.\nStep 5: Improve system speed."],
+
+["User keeps system running for too long without restart",
+"Restart system regularly.",
+"Step 1: Save all work.\nStep 2: Close applications.\nStep 3: Restart computer.\nStep 4: Allow system refresh.\nStep 5: Use scheduled restarts."],
+
+["Opening multiple heavy software simultaneously",
+"Avoid running too many heavy programs.",
+"Step 1: Identify heavy applications.\nStep 2: Close unused programs.\nStep 3: Run one heavy app at a time.\nStep 4: Monitor system performance.\nStep 5: Restart system if needed."],
+
+["User ignores system maintenance notifications",
+"Perform regular maintenance tasks.",
+"Step 1: Read system notification.\nStep 2: Run cleanup tools.\nStep 3: Update software.\nStep 4: Restart system.\nStep 5: Follow future reminders."],
+
+["Frequent unplugging of USB devices without ejecting",
+"Always safely remove USB devices before unplugging.",
+"Step 1: Locate the USB icon on the taskbar.\nStep 2: Click 'Safely Remove Hardware'.\nStep 3: Select the USB device.\nStep 4: Wait for confirmation message.\nStep 5: Unplug the device safely."],
+
+["User ignores low battery warnings",
+"Charge device before it fully drains.",
+"Step 1: Check battery level indicator.\nStep 2: Plug in charger when low battery appears.\nStep 3: Avoid using heavy apps while charging.\nStep 4: Let battery charge to at least 20%.\nStep 5: Prevent sudden shutdowns."],
+
+["Too many tabs with auto-playing videos",
+"Stop auto-play and reduce browser load.",
+"Step 1: Close tabs with videos.\nStep 2: Disable auto-play in browser settings.\nStep 3: Keep only necessary tabs open.\nStep 4: Restart browser.\nStep 5: Monitor performance improvement."],
+
+["User installs multiple antivirus programs",
+"Use only one antivirus software.",
+"Step 1: Open installed programs list.\nStep 2: Identify multiple antivirus apps.\nStep 3: Uninstall extra antivirus software.\nStep 4: Restart computer.\nStep 5: Keep only one active protection."],
+
+["Ignoring disk cleanup tools",
+"Run disk cleanup regularly.",
+"Step 1: Search 'Disk Cleanup' in system.\nStep 2: Select drive C:.\nStep 3: Check temporary files and cache.\nStep 4: Click clean.\nStep 5: Restart system if needed."],
+
+["User frequently force shuts down computer",
+"Avoid holding power button to turn off system.",
+"Step 1: Close all applications properly.\nStep 2: Use Start menu shutdown option.\nStep 3: Wait for system to close safely.\nStep 4: Avoid pressing power button.\nStep 5: Prevent file corruption."],
+
+["Too many background browser extensions",
+"Disable unnecessary extensions.",
+"Step 1: Open browser settings.\nStep 2: Go to Extensions menu.\nStep 3: Turn off or remove unused extensions.\nStep 4: Restart browser.\nStep 5: Check performance."],
+
+["User ignores software update prompts",
+"Update software regularly for better performance.",
+"Step 1: Open update notification.\nStep 2: Click update now.\nStep 3: Wait for installation.\nStep 4: Restart software.\nStep 5: Check improved performance."],
+
+["Using cracked or unverified software",
+"Avoid unsafe software sources.",
+"Step 1: Identify installed untrusted software.\nStep 2: Uninstall unsafe applications.\nStep 3: Scan system using antivirus.\nStep 4: Install official versions only.\nStep 5: Restart system."],
+
+["User downloads unnecessary large media files",
+"Manage downloads and storage wisely.",
+"Step 1: Check file size before downloading.\nStep 2: Avoid unnecessary media downloads.\nStep 3: Move files to external storage.\nStep 4: Delete unused files.\nStep 5: Monitor disk space."],
+
+["Ignoring browser cache buildup",
+"Clear browser cache regularly.",
+"Step 1: Open browser settings.\nStep 2: Go to privacy section.\nStep 3: Clear cache and cookies.\nStep 4: Restart browser.\nStep 5: Check faster loading speed."],
+
+["User leaves computer running overnight frequently",
+"Shut down or restart computer properly.",
+"Step 1: Save all work.\nStep 2: Close applications.\nStep 3: Shut down system.\nStep 4: Avoid unnecessary overnight use.\nStep 5: Restart daily for refresh."],
+
+["Installing duplicate applications",
+"Remove duplicate software versions.",
+"Step 1: Open installed programs list.\nStep 2: Identify duplicate apps.\nStep 3: Uninstall extra versions.\nStep 4: Restart system.\nStep 5: Keep only one version per app."],
+
+["User ignores system warnings about performance",
+"Follow system performance alerts.",
+"Step 1: Read system warning message.\nStep 2: Check Task Manager.\nStep 3: Close heavy apps.\nStep 4: Free up memory.\nStep 5: Restart system."],
+
+["Overloading system with high-resolution files",
+"Reduce file size usage on device.",
+"Step 1: Identify large files.\nStep 2: Compress or move files.\nStep 3: Store on external drive.\nStep 4: Delete unnecessary copies.\nStep 5: Monitor storage regularly."],
+
+["User disables security features accidentally",
+"Enable system security protection.",
+"Step 1: Open security settings.\nStep 2: Check antivirus status.\nStep 3: Turn on real-time protection.\nStep 4: Enable firewall.\nStep 5: Restart system."],
+
+["Too many notification pop-ups",
+"Disable unnecessary app notifications.",
+"Step 1: Open system settings.\nStep 2: Go to Notifications section.\nStep 3: Turn off non-essential apps.\nStep 4: Keep only important alerts.\nStep 5: Restart system if needed."],
+
+["User ignores storage fragmentation warning",
+"Defragment or optimize storage drive.",
+"Step 1: Search 'Defragment and Optimize Drives'.\nStep 2: Select main drive (C:).\nStep 3: Click Optimize.\nStep 4: Wait for process to finish.\nStep 5: Restart computer."],
+
+["Too many login accounts stored on device",
+"Remove unused user accounts.",
+"Step 1: Open account settings.\nStep 2: Review all user accounts.\nStep 3: Delete unused accounts.\nStep 4: Keep only active accounts.\nStep 5: Restart system."],
+
+["User ignores system storage warnings repeatedly",
+"Free up disk space immediately.",
+"Step 1: Open storage settings.\nStep 2: Check storage usage.\nStep 3: Delete unnecessary files.\nStep 4: Empty recycle bin.\nStep 5: Restart system."],
+
+["Opening too many heavy websites at once",
+"Limit resource-heavy browsing.",
+"Step 1: Identify heavy websites.\nStep 2: Close unnecessary tabs.\nStep 3: Avoid streaming multiple videos.\nStep 4: Restart browser.\nStep 5: Monitor system performance."],
+
+["User installs untrusted browser add-ons",
+"Remove suspicious extensions.",
+"Step 1: Open browser extensions menu.\nStep 2: Identify unknown add-ons.\nStep 3: Remove suspicious extensions.\nStep 4: Restart browser.\nStep 5: Check performance."],
+
+["Ignoring software license expiration warnings",
+"Renew or activate valid license.",
+"Step 1: Open software settings.\nStep 2: Check license status.\nStep 3: Enter valid license key.\nStep 4: Activate product.\nStep 5: Restart software."],
+
+["User downloads files during peak system usage",
+"Schedule downloads properly.",
+"Step 1: Pause unnecessary downloads.\nStep 2: Close heavy applications.\nStep 3: Resume downloads later.\nStep 4: Monitor network usage.\nStep 5: Avoid system overload."],
+
+["Frequent switching between user profiles",
+"Use a single active profile when possible.",
+"Step 1: Log out of unused accounts.\nStep 2: Select main user profile.\nStep 3: Close background sessions.\nStep 4: Restart system.\nStep 5: Use one profile consistently."],
+
+["User ignores system restore points",
+"Create and use restore points regularly.",
+"Step 1: Search System Restore.\nStep 2: Create restore point.\nStep 3: Save system state.\nStep 4: Use restore if issue occurs.\nStep 5: Maintain regular backups."],
+
+["Too many temporary browser downloads stored",
+"Clear download history and temp files.",
+"Step 1: Open browser settings.\nStep 2: Clear download history.\nStep 3: Delete temporary files.\nStep 4: Empty recycle bin.\nStep 5: Restart browser."],
+
+["User leaves multiple heavy apps running overnight",
+"Close applications before leaving system idle.",
+"Step 1: Save all work.\nStep 2: Close heavy applications.\nStep 3: Shut down or sleep system.\nStep 4: Avoid overnight usage.\nStep 5: Restart daily."],
+
+["Ignoring system update restart prompts",
+"Always restart after updates.",
+"Step 1: Save all work.\nStep 2: Click restart when prompted.\nStep 3: Allow update to finish.\nStep 4: Do not interrupt process.\nStep 5: Verify system performance."],
+
+["User installs duplicate software tools",
+"Remove duplicate applications.",
+"Step 1: Open installed programs list.\nStep 2: Identify duplicate apps.\nStep 3: Uninstall unnecessary versions.\nStep 4: Restart system.\nStep 5: Keep only one version."],
+
+["Too many files stored in downloads folder",
+"Organize and clean downloads folder.",
+"Step 1: Open Downloads folder.\nStep 2: Sort files by date or size.\nStep 3: Delete unnecessary files.\nStep 4: Move important files.\nStep 5: Keep folder clean."],
+
+["User ignores antivirus scan schedules",
+"Run regular system scans.",
+"Step 1: Open antivirus software.\nStep 2: Start full system scan.\nStep 3: Remove detected threats.\nStep 4: Schedule future scans.\nStep 5: Restart system."],
+
+["Using outdated browser versions",
+"Update browser to latest version.",
+"Step 1: Open browser settings.\nStep 2: Check for updates.\nStep 3: Install latest version.\nStep 4: Restart browser.\nStep 5: Test performance."],
+
+["User keeps too many browser profiles active",
+"Remove unused browser profiles.",
+"Step 1: Open browser profile settings.\nStep 2: Review active profiles.\nStep 3: Delete unused profiles.\nStep 4: Keep main profile only.\nStep 5: Restart browser."],
+
+["Ignoring system low performance alerts",
+"Take action when system slows down.",
+"Step 1: Open Task Manager.\nStep 2: Check CPU and RAM usage.\nStep 3: Close heavy applications.\nStep 4: Restart system.\nStep 5: Monitor performance."],
+
+["User installs unnecessary toolbars or plugins",
+"Remove unwanted browser tools.",
+"Step 1: Open browser extensions.\nStep 2: Identify toolbars/plugins.\nStep 3: Remove unnecessary items.\nStep 4: Restart browser.\nStep 5: Check speed improvement."],
+
+["Too many saved passwords in browser",
+"Organize saved login data.",
+"Step 1: Open password manager.\nStep 2: Review saved passwords.\nStep 3: Delete unused entries.\nStep 4: Keep important accounts only.\nStep 5: Secure password storage."],
+
+["User ignores system performance optimization tools",
+"Run built-in optimization tools.",
+"Step 1: Open system settings.\nStep 2: Run performance optimizer.\nStep 3: Clean temporary files.\nStep 4: Optimize startup programs.\nStep 5: Restart system."],
+
+["Not logging out of shared computers",
+"Always log out after use.",
+"Step 1: Save all work.\nStep 2: Click sign out.\nStep 3: Close all applications.\nStep 4: Clear browser session if used.\nStep 5: Ensure secure exit."]
+];
+
+// render function
+function renderProblems(list){
+    let container = document.getElementById("content");
+    container.innerHTML = "";
+
+    list.forEach((p, index) => {
+        container.innerHTML += `
+        <div class="problem" onclick="toggleSolution(${index})">
+            <h3>${p[0]}</h3>
+
+            <div class="solution" id="sol-${index}">
+                <p><b>Solution:</b> ${p[1]}</p>
+                <div class="tutorial">${p[2].replace(/\n/g,"<br>")}</div>
+            </div>
+        </div>
+        `;
+    });
+}
+
+// toggle solution open/close
+function toggleSolution(index){
+    let sol = document.getElementById("sol-" + index);
+    sol.style.display = (sol.style.display === "block") ? "none" : "block";
+}
+
+// SEARCH FUNCTION (THIS IS WHAT YOU WERE MISSING)
+function searchProblem(){
+    let input = document.getElementById("searchBar").value.toLowerCase();
+
+    let filtered = softwareProblems.filter(p =>
+        p[0].toLowerCase().includes(input) ||
+        p[1].toLowerCase().includes(input)
+    );
+
+    renderProblems(filtered);
+}
+
+// initial load
+renderProblems(userProblems);
+
+function displayProblems(list){
+    let output="";
+
+
+list.forEach((item,index)=>{
+
+
+let tutorialSteps = item[2]
+.split("\n")
+.map(step=>{
+
+return "<p>" + step + "</p>";
+
+})
+.join("");
+
+
+
+output += `
+        <div class="problem" onclick="showSolution(${index})">
+            <h3>${index+1}. ${item[0]}</h3>
+
+            <div class="solution" id="solution-${index}">
+                <p><b>Solution:</b><br>${item[1]}</p>
+
+                <div class="separator"></div>
+
+                <p class="tutorial">
+                    <b>Tutorial:</b><br>
+                    ${tutorialSteps}
+                </p>
+            </div>
+        </div>
+        `;
+    });
+
+    document.getElementById("content").innerHTML = output;
+}
+
+function showSolution(id){
+    let solution = document.getElementById("solution-"+id);
+
+    solution.style.display =
+        solution.style.display === "block" ? "none" : "block";
+}
+
+displayProblems(userProblems);
+
+function searchProblem(){
+    let search = document.getElementById("searchBar").value.toLowerCase();
+
+    let filtered = userProblems.filter(p =>
+        p[0].toLowerCase().includes(search)
+    );
+
+    displayProblems(filtered);
+}
+
+
+</script>
+
+
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Show the welcome name if the user already signed in on the Home page (added) */
+    (function () {
+        var chip = document.getElementById("navbarWelcome");
+        if (chip) {
+            try {
+                chip.textContent = localStorage.getItem("userNickname") || "Guest";
+            } catch (e) {}
+        }
+    })();
+
+    /* Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function isMobileWidth() {
+            return window.innerWidth <= 768;
+        }
+
+        function handleScroll() {
+            if (!isMobileWidth()) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+                lastScrollY = window.scrollY;
+                return;
+            }
+
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+</body>
+
+</html>
