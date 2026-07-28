@@ -193,6 +193,10 @@ a{
 
 @media(max-width:768px){
 
+    .navbar-actions{
+        display:none !important;
+    }
+
 body{
     padding:18px;
 }
@@ -326,7 +330,9 @@ h1{
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            margin-right: 46px;
+            position:relative;
+            right:40px;
+            margin-right: 0px;
         }
 
         .navbar-account-btn {
@@ -345,6 +351,13 @@ h1{
             white-space: nowrap;
             text-decoration: none;
             transition: all 0.3s ease;
+        }
+
+        #navbarWelcome{
+    max-width:90px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
         }
 
         .navbar-account-btn:hover {
