@@ -93,7 +93,7 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            right: 0;
             height: 78px;
             z-index: 998;
             display: flex;
@@ -142,6 +142,7 @@
             align-items: center;
             gap: 4px;
             flex: 1;
+            min-width: 0;
             justify-content: center;
             overflow-x: auto;
             scrollbar-width: none;
@@ -218,7 +219,16 @@
             background: transparent;
             border: none;
             padding: 0;
+            opacity: 0;
+            transform: scale(0.85);
+            pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn.show-on-scroll {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
         }
 
         .menu-btn span {
@@ -815,20 +825,10 @@
 
             body { padding-top: 66px; }
             .top-navbar { height: 66px; padding: 0 16px; }
-            .navbar-links { display: none; }
-            .navbar-actions { display: none; }
             .navbar-title { display: none; }
             .menu-btn {
                 top: 21px;
                 right: 18px;
-                opacity: 0;
-                transform: scale(0.85);
-                pointer-events: none;
-            }
-            .menu-btn.show-on-scroll {
-                opacity: 1;
-                transform: scale(1);
-                pointer-events: auto;
             }
         }
 
@@ -853,8 +853,12 @@
         <a href="hardware.html" class="navbar-link">Hardware</a>
         <a href="software.html" class="navbar-link">Software</a>
         <a href="network.html" class="navbar-link">Network</a>
+        <a href="network-topology.html" class="navbar-link">Network Setup</a>
+        <a href="user.html" class="navbar-link">User-Related</a>
         <a href="game-hub.html" class="navbar-link">Game Hub</a>
         <a href="cable-guide.html" class="navbar-link">Cable Guide</a>
+        <a href="rufus-tutorial.html" class="navbar-link">Rufus Tutorial</a>
+        <a href="report_page.html" class="navbar-link">Reports</a>
         <a href="faqs.html" class="navbar-link">FAQs</a>
     </div>
 
@@ -1718,7 +1722,7 @@ async function handleNavForgotPassword() {
 }
 </script>
 
-<!-- Hide the top navbar on scroll-down on mobile, reveal the hamburger instead (added) -->
+<!-- Hide the top navbar on scroll-down (desktop + mobile), reveal the hamburger instead (added) -->
 <script>
     (function () {
         var navbarEl = document.querySelector(".top-navbar");
@@ -1727,18 +1731,7 @@ async function handleNavForgotPassword() {
 
         var lastScrollY = window.scrollY;
 
-        function isMobileWidth() {
-            return window.innerWidth <= 768;
-        }
-
         function handleScroll() {
-            if (!isMobileWidth()) {
-                navbarEl.classList.remove("navbar-hidden");
-                menuBtnEl.classList.remove("show-on-scroll");
-                lastScrollY = window.scrollY;
-                return;
-            }
-
             var currentScrollY = window.scrollY;
 
             if (currentScrollY <= 10) {
@@ -1757,6 +1750,87 @@ async function handleNavForgotPassword() {
 
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleScroll);
+    })();
+</script>
+
+<!-- Feedback & Rating form submit handler (added — this was missing entirely,
+     which is why feedback never sent). Fill in your real EmailJS Service ID
+     and a Template ID for feedback (see the comment below) before this will
+     actually deliver mail. -->
+<script>
+    (function () {
+        var feedbackForm = document.getElementById("feedbackForm");
+        if (!feedbackForm) return;
+
+        var starRatingError = document.getElementById("starRatingError");
+        var feedbackEmailError = document.getElementById("feedbackEmailError");
+        var feedbackCommentError = document.getElementById("feedbackCommentError");
+        var senderEmailInput = document.getElementById("sender_email");
+        var feedbackCommentInput = document.getElementById("feedbackComment");
+        var submitBtn = feedbackForm.querySelector(".submit-btn");
+        var emailRegexFB = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        feedbackForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            var ratingInput = feedbackForm.querySelector('input[name="rating"]:checked');
+            var emailVal = senderEmailInput.value.trim();
+            var commentVal = feedbackCommentInput.value.trim();
+            var valid = true;
+
+            if (!ratingInput) {
+                starRatingError.textContent = "Please select a star rating.";
+                valid = false;
+            } else {
+                starRatingError.textContent = "";
+            }
+
+            if (emailVal && !emailRegexFB.test(emailVal)) {
+                feedbackEmailError.textContent = "Please enter a valid email address.";
+                valid = false;
+            } else {
+                feedbackEmailError.textContent = "";
+            }
+
+            if (!commentVal) {
+                feedbackCommentError.textContent = "Please write a comment.";
+                valid = false;
+            } else {
+                feedbackCommentError.textContent = "";
+            }
+
+            if (!valid) return;
+
+            if (typeof emailjs === "undefined") {
+                alert("⚠️ Feedback couldn't be sent — EmailJS didn't load. Please check your connection and try again.");
+                return;
+            }
+
+            var originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+
+            // ⚠️ REPLACE THESE TWO PLACEHOLDERS with your real EmailJS
+            // Service ID and a Template ID set up for feedback (with
+            // template variables: rating, sender_email, feedback_comment).
+            // Your OTP emails already prove EmailJS is initialized on this
+            // site (emailjs-otp.js), so you only need a service/template ID
+            // pair here — not a new emailjs.init() call.
+            emailjs.send("YOUR_SERVICE_ID", "YOUR_FEEDBACK_TEMPLATE_ID", {
+                rating: ratingInput.value,
+                sender_email: emailVal || "Not provided",
+                feedback_comment: commentVal
+            }).then(function () {
+                alert("✅ Thank you for your feedback!");
+                feedbackForm.reset();
+            }).catch(function (err) {
+                console.error("EmailJS feedback error:", err);
+                alert("⚠️ Something went wrong sending your feedback. Please try again later.");
+            }).finally(function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        });
     })();
 </script>
 
