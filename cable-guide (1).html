@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- EmailJS SDK and OTP Module (added) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+<script src="emailjs-otp.js" defer></script>
+    <title>iSeeScan - Cable Fabrication Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            margin: 0; color: white;
+            background: linear-gradient(135deg, rgba(6, 11, 25, 0.98) 30%, rgba(0, 20, 50, 0.95) 100%);
+            min-height: 100vh; padding: 40px 20px;
+        }
+        .container { width: min(95%, 1100px); margin: auto; }
+        .back-btn {
+            background: rgba(0, 234, 255, 0.1); border: 1px solid #00eaff;
+            color: #00eaff; padding: 10px 20px; border-radius: 50px;
+            cursor: pointer; font-weight: bold; transition: 0.3s; text-decoration: none; display: inline-block;
+        }
+        .back-btn:hover { box-shadow: 0 0 15px rgba(0, 234, 255, 0.4); background: #00eaff; color: #060b19; }
+        h1 { color: #00eaff; text-shadow: 0 0 15px rgba(0, 119, 255, 0.6); margin-top: 30px; }
+        
+        .grid-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; margin-top: 30px; }
+        .info-card {
+            background: rgba(13, 19, 33, 0.8); backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 234, 255, 0.2); padding: 30px; border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,.4);
+        }
+        .info-card h2 { color: #00ff9d; border-bottom: 2px solid rgba(0, 255, 157, 0.2); padding-bottom: 8px; }
+        
+        .color-code { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; margin: 15px 0; border-left: 4px solid #0077ff; line-height: 1.8; }
+        
+        .step-list { margin-top: 40px; }
+        .step-item {
+            background: rgba(13, 19, 33, 0.6); border-left: 4px solid #00eaff;
+            padding: 20px; margin-bottom: 15px; border-radius: 0 15px 15px 0;
+        }
+        .step-item strong { color: #00eaff; display: block; margin-bottom: 5px; font-size: 18px; }
+        @media (max-width: 600px) { .grid-section { grid-template-columns: 1fr; } }
+    
+        /* ============================================================
+           SITE-WIDE TOP NAVIGATION (added) 
+           ============================================================ */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 78px;
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 0 clamp(16px, 4vw, 50px);
+            background: rgba(6, 11, 25, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(0, 234, 255, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.35s ease;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .top-navbar.navbar-hidden {
+            transform: translateY(-100%);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand .navbar-logo-emoji {
+            height: 100px;
+            width: auto;
+            display: block;
+            filter: drop-shadow(0 0 8px #0077ff);
+        }
+
+        .navbar-title {
+            font-weight: 900;
+            font-size: clamp(15px, 2vw, 19px);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #00eaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+            min-width: 0;
+            justify-content: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .navbar-links::-webkit-scrollbar { display: none; }
+
+        .navbar-link {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 20px;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.1);
+            border-color: rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            margin-right: 46px;
+        }
+
+        .navbar-account-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 234, 255, 0.08);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            color: #e5faff;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-account-btn:hover {
+            background: rgba(0, 234, 255, 0.18);
+            box-shadow: 0 0 14px rgba(0, 234, 255, 0.25);
+        }
+
+        .navbar-account-btn .caret {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .navbar-spacer {
+            height: 78px;
+            width: 100%;
+        }
+
+        /* Hamburger button (added) */
+        .menu-btn {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            z-index: 1002;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 32px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            opacity: 0;
+            transform: scale(0.85);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .menu-btn.show-on-scroll {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #00eaff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.6);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+        }
+
+        .menu-btn.open span:nth-child(1) { transform: translateY(10.5px) rotate(45deg); }
+        .menu-btn.open span:nth-child(2) { opacity: 0; }
+        .menu-btn.open span:nth-child(3) { transform: translateY(-10.5px) rotate(-45deg); }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(4, 8, 18, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-nav-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(100%, 420px);
+            height: 100vh;
+            background: rgba(10, 16, 30, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(0, 234, 255, 0.25);
+            box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding: 80px 25px 30px 25px;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+        }
+
+        .side-nav-drawer.active { transform: translateX(0); }
+
+        .side-nav-drawer h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(0, 119, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-link-item {
+            color: #8fa0ba;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: rgba(13, 19, 33, 0.7);
+            border: 1px solid rgba(0, 234, 255, 0.12);
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #00eaff;
+            background: rgba(0, 234, 255, 0.12);
+            border-color: #00eaff;
+            box-shadow: 0 0 12px rgba(0, 234, 255, 0.25);
+            transform: translateX(-4px);
+        }
+
+
+        /* Input Controls Inside Drawer (added) */
+        .drawer-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #0a0f1d;
+            border: 1px solid #1a2333;
+            color: white;
+            font-size: 13px;
+            margin-top: 4px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .drawer-input:focus {
+            border-color: #00eaff;
+            box-shadow: 0 0 8px rgba(0, 234, 255, 0.3);
+        }
+
+        .drawer-input.invalid {
+            border-color: #ff4d4d !important;
+            box-shadow: 0 0 8px rgba(255, 77, 77, 0.3) !important;
+        }
+
+        .drawer-input.valid {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 8px rgba(0, 255, 136, 0.2) !important;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 11px;
+            display: block;
+            min-height: 14px;
+            margin-top: 2px;
+        }
+
+        .error-msg.match-success {
+            color: #00ff88;
+        }
+
+        /* --- OTP TOAST NOTIFICATION (added) --- */
+        .otp-toast {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(13, 19, 33, 0.97);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: #00ff88;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            max-width: 90%;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .otp-toast.show {
+            display: block;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- OTP MODAL OVERLAY (added) --- */
+        .otp-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2001;
+        }
+
+        .otp-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(13, 19, 33, 0.97);
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            border-radius: 18px;
+            padding: 30px 26px;
+            width: min(90%, 380px);
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 234, 255, 0.08);
+        }
+
+        .otp-box h2 {
+            color: #00eaff;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .otp-box p {
+            font-size: 13px;
+            color: #8fa0ba;
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+
+        .otp-box p span {
+            color: #00eaff;
+            font-weight: 600;
+        }
+
+        .otp-input-box {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #1a2333;
+            background: #0a0f1d;
+            color: #ffffff;
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 8px;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .otp-input-box:focus {
+            border-color: #00bfff;
+            box-shadow: 0 0 12px rgba(0, 191, 255, 0.35);
+        }
+
+        .otp-error {
+            display: block;
+            font-size: 12px;
+            color: #ff6b6b;
+            min-height: 16px;
+            margin-bottom: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #00eaff;
+            border-radius: 8px;
+            background: transparent;
+            color: #00eaff;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: row-reverse;
+        }
+
+        .stars input { display: none; }
+
+        .stars label {
+            font-size: 32px;
+            color: rgba(255, 255, 255, 0.15);
+            cursor: pointer;
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input:checked ~ label {
+            color: #00eaff;
+            text-shadow: 0 0 10px #00eaff;
+        }
+
+        .feedback-text, .feedback-email {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,234,255,0.2);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            outline: none;
+            margin-top: 8px;
+        }
+
+        .feedback-text { height: 80px; resize: none; }
+
+        .submit-btn {
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            border: none;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            box-shadow: 0 0 15px #00eaff;
+        }
+
+        .navbar-fb-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00eaff, #0077ff);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 119, 255, 0.4);
+            width: 100%;
+        }
+
+        @media screen and (max-width: 1080px) {
+            .navbar-links { gap: 0; }
+            .navbar-link { padding: 8px 10px; font-size: 12px; }
+        }
+
+        @media screen and (max-width: 768px) {
+            .side-nav-drawer { width: 85%; }
+
+            .navbar-spacer { height: 66px; }
+            .top-navbar { height: 66px; padding: 0 16px; }
+            .navbar-title { display: none; }
+
+            .menu-btn {
+                top: 21px;
+                right: 18px;
+            }
+        }
+
+        @media screen and (max-width: 380px) {
+            .navbar-brand .navbar-logo-emoji { height: 24px; }
+        }
+    </style>
+</head>
+<body>
+<!-- TOP NAVIGATION BAR (added) -->
+<nav class="top-navbar">
+    <a href="main.html" class="navbar-brand">
+        <img src="logo.png" class="navbar-logo-emoji" alt="iSeeScan logo">
+        <span class="navbar-title">iSeeScan</span>
+    </a>
+
+    <div class="navbar-links">
+        <a href="main.html" class="navbar-link">Home</a>
+        <a href="hardware.html" class="navbar-link">Hardware</a>
+        <a href="software.html" class="navbar-link">Software</a>
+        <a href="network.html" class="navbar-link">Network</a>
+        <a href="network-topology.html" class="navbar-link">Network Setup</a>
+        <a href="user.html" class="navbar-link">User-Related</a>
+        <a href="game-hub.html" class="navbar-link">Game Hub</a>
+        <a href="cable-guide.html" class="navbar-link active">Cable Guide</a>
+        <a href="rufus-tutorial.html" class="navbar-link">Rufus Tutorial</a>
+        <a href="report_page.html" class="navbar-link">Reports</a>
+        <a href="faqs.html" class="navbar-link">FAQs</a>
+    </div>
+
+    <div class="navbar-actions">
+        <button type="button" class="navbar-account-btn" onclick="toggleSiteNav()" title="Open menu & account">
+            <span id="navbarWelcome">Guest</span>
+            <span class="caret">▾</span>
+        </button>
+    </div>
+</nav>
+
+<!-- Three-Line Hamburger Button (added) -->
+<button class="menu-btn" id="menuToggleBtn" onclick="toggleSiteNav()">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop Blur Overlay (added) -->
+<div id="drawerOverlay" class="drawer-overlay" onclick="toggleSiteNav()"></div>
+
+<!-- OTP-Sent Notification Toast (added) -->
+<div id="otpToast" class="otp-toast">📩 OTP code sent to your Gmail!</div>
+
+<!-- Right Sliding Navigation Drawer (added) -->
+<div id="sideNavDrawer" class="side-nav-drawer">
+    <!-- SECTION 0: ACCOUNT / LOGIN OPTION (added) -->
+    <div id="accountSection" class="account-card" style="background: rgba(10, 15, 29, 0.6); padding: 15px; border-radius: 12px; border: 1px solid rgba(0, 234, 255, 0.2); margin-bottom: 20px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span style="color: #8fa0ba; font-size: 12px;">Logged in as:</span>
+                <h4 id="userDisplay" style="color: #00eaff; margin: 0; font-size: 16px;">Guest</h4>
+            </div>
+            <button id="authBtn" type="button" style="padding: 6px 14px; background: linear-gradient(90deg, #00eaff, #0077ff); border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold; font-size: 13px;">
+                Sign In
+            </button>
+        </div>
+
+        <div id="navLoginModal" style="display: none; margin-top: 15px; border-top: 1px solid rgba(0,234,255,0.15); padding-top: 15px;">
+            <h4 id="navModalTitle" style="color: #00eaff; margin-bottom: 10px;">Account Login</h4>
+            <div id="navAuthAlert" style="display: none; background: rgba(255, 77, 77, 0.15); border: 1px solid #ff4d4d; color: #ff6b6b; padding: 8px; border-radius: 6px; font-size: 11px; margin-bottom: 10px;"></div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Email Address</label>
+                <input type="email" id="navEmail" class="drawer-input" placeholder="user@gmail.com">
+                <span id="navEmailError" class="error-msg"></span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Username</label>
+                <input type="text" id="navUsername" class="drawer-input" placeholder="Enter your username">
+                <span id="navUsernameError" class="error-msg"></span>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <label style="font-size: 12px; color: #b0c4de;">Password</label>
+                <div style="position: relative; width: 100%;">
+                    <input type="password" id="navPassword" class="drawer-input" placeholder="Enter your password" style="padding-right: 35px;">
+                    <span id="toggleNavPasswordBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 14px; opacity: 0.7;">⌣</span>
+                </div>
+                <span id="navPasswordError" class="error-msg"></span>
+            </div>
+
+            <div id="navConfirmPassGroup" style="margin-bottom: 8px; display: none;">
+                <label style="font-size: 12px; color: #b0c4de;">Confirm Password</label>
+                <div style="position: relative; width: 100%;">
+                    <input type="password" id="navConfirmPassword" class="drawer-input" placeholder="Re-enter your password" style="padding-right: 35px;">
+                    <span id="toggleNavConfirmPasswordBtn" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 14px; opacity: 0.7;">⌣</span>
+                </div>
+                <span id="navConfirmPasswordError" class="error-msg"></span>
+            </div>
+
+            <div id="navForgotPassGroup" style="text-align: right; margin-top: -4px; margin-bottom: 10px;">
+                <a href="javascript:void(0)" id="forgotPasswordBtn" style="color: #00eaff; font-size: 11px; text-decoration: none;">Forgot Password?</a>
+            </div>
+
+            <button id="navSubmitBtn" type="button" style="width: 100%; padding: 10px; background: linear-gradient(90deg, #00eaff, #0077ff); border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">Log In</button>
+
+            <div style="margin-top: 12px; text-align: center; font-size: 12px; color: #8fa0ba;">
+                <span id="navToggleText">Don't have an account?</span> 
+                <a id="navToggleBtn" href="javascript:void(0)" style="color: #00eaff; font-weight: bold; text-decoration: none;">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <h2>🧭 Navigation</h2>
+    <div class="nav-links-group">
+        <a href="main.html" class="nav-link-item">🏠 Home</a>
+        <a href="game-hub.html" class="nav-link-item">🎮 Game Hub</a>
+        <a href="hardware.html" class="nav-link-item">⚙️ Hardware Problems</a>
+        <a href="software.html" class="nav-link-item">💾 Software Problems</a>
+        <a href="network.html" class="nav-link-item">🌐 Network Problems</a>
+        <a href="network-topology.html" class="nav-link-item">🖥️ Network Setup</a>
+        <a href="user.html" class="nav-link-item">👤 User-related Problems</a>
+        <a href="cable-guide.html" class="nav-link-item active">🛠️ Cable Guide</a>
+        <a href="rufus-tutorial.html" class="nav-link-item">💿 Rufus Tutorial</a>
+        <a href="report_page.html" class="nav-link-item">📊 Reports</a>
+        <a href="faqs.html" class="nav-link-item">❓ FAQs</a>
+    </div>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <h2>📱 Contact &amp; Support</h2>
+    <p style="color: #8fa0ba; font-size: 13px;">Reach out directly for assistance or feedback.</p>
+    <a href="https://www.facebook.com/share/19N6cnn6QK/" target="_blank" class="navbar-fb-link">
+        🔵 Adrian A. Cobrilla
+    </a>
+
+    <hr style="border:0; border-top:1px solid rgba(0,234,255,0.2); margin:25px 0;">
+
+    <!-- SECTION 3: FEEDBACK & RATING FORM (added) -->
+    <h3 style="color: #00eaff; margin-bottom: 5px;">Rate Our Page</h3>
+
+    <form id="feedbackForm" novalidate>
+        <div class="rating-box">
+            <div class="stars">
+                <input type="radio" id="star5" name="rating" value="5">
+                <label for="star5">★</label>
+                <input type="radio" id="star4" name="rating" value="4">
+                <label for="star4">★</label>
+                <input type="radio" id="star3" name="rating" value="3">
+                <label for="star3">★</label>
+                <input type="radio" id="star2" name="rating" value="2">
+                <label for="star2">★</label>
+                <input type="radio" id="star1" name="rating" value="1">
+                <label for="star1">★</label>
+            </div>
+            <span id="starRatingError" class="error-msg" style="text-align: center;"></span>
+
+            <input type="email" id="sender_email" name="sender_email" class="feedback-email" placeholder="Your email address">
+            <span id="feedbackEmailError" class="error-msg"></span>
+
+            <textarea id="feedbackComment" name="feedback_comment" class="feedback-text" placeholder="Write your review or comment..." required></textarea>
+            <span id="feedbackCommentError" class="error-msg"></span>
+
+            <button type="submit" class="submit-btn">Submit Review</button>
+        </div>
+    </form>
+</div>
+
+<div class="navbar-spacer"></div>
+
+<!-- OTP Verification Modal (added) -->
+<div id="otpModal" class="otp-overlay">
+  <div class="otp-box">
+    <h2>Verify Your Email</h2>
+    <p>We just sent a 6-digit code to <span id="otpRecipientEmail"></span>. Enter it below to finish creating your account.</p>
+    <input id="otpInput" class="otp-input-box" type="text" inputmode="numeric" maxlength="6" placeholder="------" autocomplete="one-time-code">
+    <span id="otpError" class="otp-error"></span>
+    <button type="button" id="verifyOtpBtn" class="btn-primary">Verify & Complete Sign Up</button>
+    <button type="button" id="resendOtpBtn" class="btn-secondary">Didn't receive code? Resend OTP</button>
+  </div>
+</div>
+
+
+    <div class="container">
+        <a href="main.html" class="back-btn">← Back to Dashboard</a>
+        <h1>🛠️ Cable Fabrication & Termination Guide</h1>
+        <p>Master the difference between standard network wiring arrangements and crimping mechanics.</p>
+
+        <div class="grid-section">
+            <!-- Straight-Through Box -->
+            <div class="info-card">
+                <h2>1. Straight-Through Cable (T568B to T568B)</h2>
+                <p><strong>Primary Function:</strong> Used to bridge dissimilar hardware devices together (e.g., Computer to Network Switch, or Router to Modem).</p>
+                
+                <div class="color-code">
+                    <strong>Both Ends Pinout (Left to Right):</strong><br>
+                    1. White-Orange | 2. Orange | 3. White-Green | 4. Blue<br>
+                    5. White-Blue | 6. Green | 7. White-Brown | 8. Brown
+                </div>
+            </div>
+
+<!-- Insert this between the Straight-Through card and the Crossover card -->
+<div class="info-card image-card" style="display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.2);">
+    <img src="color-coding.png" alt="Straight-Through vs Crossover Wiring Diagram" style="max-width: 100%; height: auto; border-radius: 15px; box-shadow: 0 0 15px rgba(0, 234, 255, 0.2);">
+</div>
+
+            <!-- Crossover Box -->
+            <div class="info-card">
+                <h2>2. Crossover Cable (T568A to T568B)</h2>
+                <p><strong>Primary Function:</strong> Direct peer-to-peer linking across identical hardware devices without routing layers (e.g., PC directly to PC, Switch to Switch).</p>
+                
+                <div class="color-code">
+                    <strong>End A Pinout (T568A Standard):</strong><br>
+                    1. White-Green | 2. Green | 3. White-Orange | 4. Blue<br>
+                    5. White-Blue | 6. Orange | 7. White-Brown | 8. Brown
+                </div>
+                <div class="color-code" style="border-left-color: #ff6bff;">
+                    <strong>End B Pinout (T568B Standard):</strong><br>
+                    Standard T568B arrangement (White-Orange sequence listed on the left).
+                </div>
+            </div>
+        </div>
+
+        <!-- Universal Fabrication Steps -->
+        <div class="step-list">
+            <h2 style="color: #00eaff;">✂️ Step-by-Step RJ45 Termination Procedure</h2>
+            
+            <div class="step-item">
+                <strong>Step 1: Outer Stripping</strong>
+                Score and strip off approximately 1.5 inches of the external rubber cable sheath using your modular tool jacket blades. Take caution not to score internal conductors.
+            </div>
+            <div class="step-item">
+                <strong>Step 2: Separation & Untwisting</strong>
+                Untwist all four core pairs cleanly back down to the base structure. Separate individual copper core strands and pull them straight to clear any manufacturing bends.
+            </div>
+            <div class="step-item">
+                <strong>Step 3: Line Up Schemes</strong>
+                Align the structural strands shoulder-to-shoulder from left to right based on your targeted structural diagram framework (T568B or T568A). Keep them tightly compressed.
+            </div>
+            <div class="step-item">
+                <strong>Step 4: Flush Trimming</strong>
+                Using a clean perpendicular blade action, trim down the flat wire layer, maintaining exactly 0.5 inches of clean extension distance past the jacket line interface boundary.
+            </div>
+            <div class="step-item">
+                <strong>Step 5: Loading the Connector</strong>
+                Guide the wire array into the clear plastic RJ45 body, ensuring the gold pins face upward. Forcefully slide the conductors forward until their exposed tip ends lock evenly against the absolute front window ceiling.
+            </div>
+            <div class="step-item">
+                <strong>Step 6: Mechanical Crimping</strong>
+                Slide your modular assembly deep into the 8P matrix slot on your hardware termination crimper. Uniformly squeeze down with sustained force until internal internal teeth punch through copper wires.
+            </div>
+        </div>
+    </div>
+
+<script>
+    /* Open / close the site navigation drawer (added) */
+    function toggleSiteNav() {
+        var btn = document.getElementById("menuToggleBtn");
+        var drawer = document.getElementById("sideNavDrawer");
+        var overlay = document.getElementById("drawerOverlay");
+        btn.classList.toggle("open");
+        drawer.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    /* Hide the top navbar on scroll-down (desktop + mobile), reveal the hamburger instead (added) */
+    (function () {
+        var navbarEl = document.querySelector(".top-navbar");
+        var menuBtnEl = document.getElementById("menuToggleBtn");
+        if (!navbarEl || !menuBtnEl) return;
+
+        var lastScrollY = window.scrollY;
+
+        function handleScroll() {
+            var currentScrollY = window.scrollY;
+
+            if (currentScrollY <= 10) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            } else if (currentScrollY > lastScrollY) {
+                navbarEl.classList.add("navbar-hidden");
+                menuBtnEl.classList.add("show-on-scroll");
+            } else if (currentScrollY < lastScrollY) {
+                navbarEl.classList.remove("navbar-hidden");
+                menuBtnEl.classList.remove("show-on-scroll");
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleScroll);
+    })();
+</script>
+<script type="module">
+import { 
+    signUpUser, 
+    loginUser, 
+    resetPassword, 
+    logoutUser, 
+    listenToAuthState 
+} from "./firebase.js";
+
+let navAuthMode = "login";
+let currentUser = null;
+
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const usernameRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[_@])[a-zA-Z0-9_@]{4,20}$/;
+const passwordComplexRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+
+const navEmail = document.getElementById("navEmail");
+const navUsername = document.getElementById("navUsername");
+const navPassword = document.getElementById("navPassword");
+const navConfirmPassword = document.getElementById("navConfirmPassword");
+
+const navEmailError = document.getElementById("navEmailError");
+const navUsernameError = document.getElementById("navUsernameError");
+const navPasswordError = document.getElementById("navPasswordError");
+const navConfirmPasswordError = document.getElementById("navConfirmPasswordError");
+const navAuthAlert = document.getElementById("navAuthAlert");
+const otpToast = document.getElementById("otpToast");
+
+document.addEventListener("DOMContentLoaded", function () {
+    listenToAuthState((user) => {
+        currentUser = user;
+        updateAccountDisplay();
+    });
+
+    document.getElementById("authBtn").addEventListener("click", handleAuthBtnClick);
+    document.getElementById("navSubmitBtn").addEventListener("click", performNavAuth);
+    document.getElementById("navToggleBtn").addEventListener("click", switchNavMode);
+    document.getElementById("forgotPasswordBtn").addEventListener("click", handleNavForgotPassword);
+
+    document.getElementById("toggleNavPasswordBtn").addEventListener("click", function() {
+        togglePasswordVisibility("navPassword", this);
+    });
+    document.getElementById("toggleNavConfirmPasswordBtn").addEventListener("click", function() {
+        togglePasswordVisibility("navConfirmPassword", this);
+    });
+
+    navEmail.addEventListener("input", () => { hideNavAlert(); validateEmail(); });
+    navUsername.addEventListener("input", () => { hideNavAlert(); validateUsername(); });
+    navPassword.addEventListener("input", () => {
+        hideNavAlert();
+        if (navAuthMode === "signup") {
+            validatePassword();
+            validateConfirmPassword();
+        }
+    });
+    navConfirmPassword.addEventListener("input", () => {
+        hideNavAlert();
+        validateConfirmPassword();
+    });
+});
+
+function togglePasswordVisibility(inputId, eyeIcon) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        eyeIcon.textContent = "𓁺";
+    } else {
+        input.type = "password";
+        eyeIcon.textContent = "⌣";
+    }
+}
+
+function showNavAlert(msg) {
+    navAuthAlert.textContent = msg;
+    navAuthAlert.style.display = "block";
+}
+
+function hideNavAlert() {
+    navAuthAlert.style.display = "none";
+}
+
+function showOtpToast(email) {
+    if (!otpToast) return;
+    otpToast.textContent = `📩 OTP code sent to ${email}!`;
+    otpToast.classList.add("show");
+    setTimeout(() => otpToast.classList.remove("show"), 4000);
+}
+
+function updateAccountDisplay() {
+    const userDisplay = document.getElementById("userDisplay");
+    const authBtn = document.getElementById("authBtn");
+    const senderEmail = document.getElementById("sender_email");
+    const navbarWelcome = document.getElementById("navbarWelcome");
+
+    if (currentUser) {
+        const username = currentUser.displayName || currentUser.email.split("@")[0];
+        userDisplay.textContent = username;
+        authBtn.textContent = "Sign Out";
+        if (senderEmail) senderEmail.value = currentUser.email;
+        if (navbarWelcome) navbarWelcome.textContent = username;
+    } else {
+        userDisplay.textContent = "Guest";
+        authBtn.textContent = "Sign In";
+        if (navbarWelcome) navbarWelcome.textContent = "Guest";
+    }
+}
+
+async function handleAuthBtnClick() {
+    if (currentUser) {
+        try {
+            await logoutUser();
+            localStorage.setItem("userNickname", "Guest");
+            localStorage.setItem("userRole", "Guest");
+            document.getElementById("navLoginModal").style.display = "none";
+            location.reload();
+        } catch (err) {
+            alert("⚠️ " + err.message);
+        }
+    } else {
+        const modal = document.getElementById("navLoginModal");
+        modal.style.display = modal.style.display === "none" ? "block" : "none";
+    }
+}
+
+function switchNavMode() {
+    const navModalTitle = document.getElementById("navModalTitle");
+    const navSubmitBtn = document.getElementById("navSubmitBtn");
+    const navConfirmPassGroup = document.getElementById("navConfirmPassGroup");
+    const navForgotPassGroup = document.getElementById("navForgotPassGroup");
+    const navToggleText = document.getElementById("navToggleText");
+    const navToggleBtn = document.getElementById("navToggleBtn");
+
+    hideNavAlert();
+    navEmail.value = "";
+    navUsername.value = "";
+    navPassword.value = "";
+    navConfirmPassword.value = "";
+
+    [navEmailError, navUsernameError, navPasswordError, navConfirmPasswordError].forEach(e => {
+        e.textContent = "";
+        e.classList.remove("match-success");
+    });
+    [navEmail, navUsername, navPassword, navConfirmPassword].forEach(inp => {
+        inp.classList.remove("valid", "invalid");
+    });
+
+    if (navAuthMode === "login") {
+        navAuthMode = "signup";
+        navModalTitle.textContent = "Create Account";
+        navSubmitBtn.textContent = "Sign Up";
+        navConfirmPassGroup.style.display = "block";
+        navForgotPassGroup.style.display = "none";
+        navToggleText.textContent = "Already have an account?";
+        navToggleBtn.textContent = "Log In";
+    } else {
+        navAuthMode = "login";
+        navModalTitle.textContent = "Account Login";
+        navSubmitBtn.textContent = "Log In";
+        navConfirmPassGroup.style.display = "none";
+        navForgotPassGroup.style.display = "block";
+        navToggleText.textContent = "Don't have an account?";
+        navToggleBtn.textContent = "Sign Up";
+    }
+}
+
+function validateEmail() {
+    const value = navEmail.value.trim();
+    if (value === "") {
+        navEmailError.textContent = "";
+        navEmail.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (!emailRegex.test(value)) {
+        navEmailError.textContent = "Please enter a valid email address.";
+        navEmail.classList.add("invalid");
+        navEmail.classList.remove("valid");
+        return false;
+    } else {
+        navEmailError.textContent = "";
+        navEmail.classList.remove("invalid");
+        navEmail.classList.add("valid");
+        return true;
+    }
+}
+
+function validateUsername() {
+    const value = navUsername.value.trim();
+    if (value === "") {
+        navUsernameError.textContent = "";
+        navUsername.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (value.length < 4) {
+        navUsernameError.textContent = "Must be at least 4 characters long.";
+        navUsername.classList.add("invalid");
+        navUsername.classList.remove("valid");
+        return false;
+    }
+    if (!usernameRegex.test(value)) {
+        navUsernameError.textContent = "Must include letters, numbers, and special characters (_ or @).";
+        navUsername.classList.add("invalid");
+        navUsername.classList.remove("valid");
+        return false;
+    } else {
+        navUsernameError.textContent = "";
+        navUsername.classList.remove("invalid");
+        navUsername.classList.add("valid");
+        return true;
+    }
+}
+
+function validatePassword() {
+    const value = navPassword.value;
+    if (value === "") {
+        navPasswordError.textContent = "";
+        navPassword.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (!passwordComplexRegex.test(value)) {
+        navPasswordError.textContent = "Must be at least 6 characters with letters, numbers & symbols.";
+        navPassword.classList.add("invalid");
+        navPassword.classList.remove("valid");
+        return false;
+    } else {
+        navPasswordError.textContent = "";
+        navPassword.classList.remove("invalid");
+        navPassword.classList.add("valid");
+        return true;
+    }
+}
+
+function validateConfirmPassword() {
+    const passVal = navPassword.value;
+    const confirmVal = navConfirmPassword.value;
+    if (confirmVal === "") {
+        navConfirmPasswordError.textContent = "";
+        navConfirmPasswordError.classList.remove("match-success");
+        navConfirmPassword.classList.remove("valid", "invalid");
+        return false;
+    }
+    if (confirmVal !== passVal) {
+        navConfirmPasswordError.textContent = "❌ Passwords do not match!";
+        navConfirmPasswordError.classList.remove("match-success");
+        navConfirmPassword.classList.add("invalid");
+        navConfirmPassword.classList.remove("valid");
+        return false;
+    } else {
+        navConfirmPasswordError.textContent = "✓ Passwords match!";
+        navConfirmPasswordError.classList.add("match-success");
+        navConfirmPassword.classList.remove("invalid");
+        navConfirmPassword.classList.add("valid");
+        return true;
+    }
+}
+
+async function completeSignUp(email, password, username) {
+    const user = await signUpUser(email, password, username);
+    localStorage.setItem("userEmail", user.email);
+    localStorage.setItem("userNickname", username);
+    localStorage.setItem("userRole", "Registered User");
+    document.getElementById("navLoginModal").style.display = "none";
+    location.reload();
+}
+window.completeSignUp = completeSignUp;
+
+async function performNavAuth() {
+    const isEmailValid = validateEmail();
+    const isUsernameValid = validateUsername();
+
+    if (!navEmail.value.trim()) {
+        navEmailError.textContent = "Email is required.";
+        navEmail.classList.add("invalid");
+    }
+    if (!navUsername.value.trim()) {
+        navUsernameError.textContent = "Username is required.";
+        navUsername.classList.add("invalid");
+    }
+    if (!navPassword.value) {
+        navPasswordError.textContent = "Password is required.";
+        navPassword.classList.add("invalid");
+    }
+
+    if (!isEmailValid || !isUsernameValid) return;
+
+    const email = navEmail.value.trim().toLowerCase();
+    const username = navUsername.value.trim();
+    const password = navPassword.value;
+
+    if (navAuthMode === "signup") {
+        const isPasswordValid = validatePassword();
+        const isConfirmMatch = validateConfirmPassword();
+        if (!isPasswordValid || !isConfirmMatch) return;
+
+        if (typeof initiateOTPFlow !== "function") {
+            showNavAlert("⚠️ OTP verification is unavailable right now. Please refresh and try again.");
+            return;
+        }
+
+        await initiateOTPFlow({ email, password, username }, completeSignUp);
+        showOtpToast(email);
+        return;
+    }
+
+    // Log In Flow
+    const submitBtn = document.getElementById("navSubmitBtn");
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = "Please wait...";
+    submitBtn.disabled = true;
+
+    try {
+        const user = await loginUser(email, password);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("userNickname", user.displayName || username);
+        localStorage.setItem("userRole", "Registered User");
+        document.getElementById("navLoginModal").style.display = "none";
+        location.reload();
+    } catch (err) {
+        if (err.code === 'auth/email-already-in-use') {
+            showNavAlert("⚠️ An account with this email already exists!");
+        } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+            showNavAlert("⚠️ Account not found or invalid credentials!");
+            navEmail.classList.add("invalid");
+            navUsername.classList.add("invalid");
+            navPassword.classList.add("invalid");
+        } else {
+            showNavAlert("⚠️ " + err.message);
+        }
+    } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+async function handleNavForgotPassword() {
+    const email = navEmail.value.trim().toLowerCase();
+    if (!email) {
+        showNavAlert("⚠️ Please enter your email first.");
+        return;
+    }
+    try {
+        await resetPassword(email);
+        alert("📧 Password reset link sent to your email!");
+    } catch (err) {
+        showNavAlert("⚠️ " + err.message);
+    }
+}
+</script>
+
+
+<!-- Feedback & Rating form submit handler (added — this was missing entirely,
+     which is why feedback never sent). Fill in your real EmailJS Service ID
+     and a Template ID for feedback (see the comment below) before this will
+     actually deliver mail. -->
+<script>
+    (function () {
+        var feedbackForm = document.getElementById("feedbackForm");
+        if (!feedbackForm) return;
+
+        var starRatingError = document.getElementById("starRatingError");
+        var feedbackEmailError = document.getElementById("feedbackEmailError");
+        var feedbackCommentError = document.getElementById("feedbackCommentError");
+        var senderEmailInput = document.getElementById("sender_email");
+        var feedbackCommentInput = document.getElementById("feedbackComment");
+        var submitBtn = feedbackForm.querySelector(".submit-btn");
+        var emailRegexFB = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        feedbackForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            var ratingInput = feedbackForm.querySelector('input[name="rating"]:checked');
+            var emailVal = senderEmailInput.value.trim();
+            var commentVal = feedbackCommentInput.value.trim();
+            var valid = true;
+
+            if (!ratingInput) {
+                starRatingError.textContent = "Please select a star rating.";
+                valid = false;
+            } else {
+                starRatingError.textContent = "";
+            }
+
+            if (emailVal && !emailRegexFB.test(emailVal)) {
+                feedbackEmailError.textContent = "Please enter a valid email address.";
+                valid = false;
+            } else {
+                feedbackEmailError.textContent = "";
+            }
+
+            if (!commentVal) {
+                feedbackCommentError.textContent = "Please write a comment.";
+                valid = false;
+            } else {
+                feedbackCommentError.textContent = "";
+            }
+
+            if (!valid) return;
+
+            if (typeof emailjs === "undefined") {
+                alert("⚠️ Feedback couldn't be sent — EmailJS didn't load. Please check your connection and try again.");
+                return;
+            }
+
+            var originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending...";
+
+            // Using your existing EmailJS service/template (from script.js)
+            // and its expected parameter names.
+            emailjs.send("service_l9kz9ak", "template_p9qfmno", {
+                feedback: "📝 iSeeScan Feedback Report",
+                email: emailVal || "Not provided",
+                rating: ratingInput.value,
+                suggestions: commentVal
+            }).then(function () {
+                alert("✅ Thank you for your feedback!");
+                feedbackForm.reset();
+            }).catch(function (err) {
+                console.error("EmailJS feedback error:", err);
+                alert("⚠️ Something went wrong sending your feedback. Please try again later.");
+            }).finally(function () {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        });
+    })();
+</script>
+
+</body>
+</html>
