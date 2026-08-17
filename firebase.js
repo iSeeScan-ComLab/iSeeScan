@@ -9,6 +9,7 @@ import {
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Your exact Firebase configuration
 const firebaseConfig = {
@@ -23,6 +24,7 @@ const firebaseConfig = {
 // Initialize Firebase App & Auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+export const db = getFirestore(app);
 
 /**
  * Register a new iSeeScan user account

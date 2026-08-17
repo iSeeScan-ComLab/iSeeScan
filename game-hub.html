@@ -1230,14 +1230,36 @@
         <!-- Global Leaderboard -->
         <div style="margin-top:28px; border-top:1px solid rgba(0,234,255,0.15); padding-top:16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h4 style="color:var(--gh-cyan); margin:0; font-size:0.95rem; display:flex; align-items:center; gap:6px;">🏆 REST API Global Leaderboard</h4>
+                <h4 style="color:var(--gh-cyan); margin:0; font-size:0.95rem; display:flex; align-items:center; gap:6px;">🏆 Global Leaderboard</h4>
                 <button id="submitScoreBtn" class="gh-btn" style="font-size: 12px; padding: 6px 14px;" onclick="submitScore()">Submit High Score</button>
             </div>
             <div id="ghLeaderboard" style="font-size:13px; color:var(--gh-text-muted);">Loading scores...</div>
         </div>
     </div>
 
+    <!-- Bridges the Firestore SDK (ES module) into the classic script below,
+         so the ITGameHub class (and all the inline onclick="gameHub..." handlers
+         across the page) can keep working exactly as before. -->
+    <script type="module">
+        import { db } from "./firebase.js";
+        import {
+            collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        window.firebaseLeaderboard = { db, collection, addDoc, getDocs, query, orderBy, limit, serverTimestamp };
+        window.dispatchEvent(new Event("firebase-leaderboard-ready"));
+    </script>
+
     <script>
+        // Resolves once the Firestore bridge above has finished loading,
+        // no matter which script runs first.
+        function waitForFirebase() {
+            return new Promise((resolve) => {
+                if (window.firebaseLeaderboard) return resolve(window.firebaseLeaderboard);
+                window.addEventListener("firebase-leaderboard-ready", () => resolve(window.firebaseLeaderboard), { once: true });
+            });
+        }
+
         // Load user details from LocalStorage on page initialization
         const nickname = localStorage.getItem("userNickname") || "Guest";
         const role = localStorage.getItem("userRole") || "Guest";
@@ -1286,15 +1308,12 @@
             constructor() {
                 this.score = 0;
                 this.playerHandle = nickname;
-                this.restApiUrl = "https://65c3b5163905a890327cdcb8.mockapi.io/api/v1/leaderboard";
-                
+
                 this.selectedWireId = null;
 
-                this.leaderboardData = [
-                    { name: "NetAdmin_PH", score: 850, status: "Verified" },
-                    { name: "RufusKing", score: 700, status: "Verified" },
-                    { name: "CrimpMaster", score: 520, status: "Verified" }
-                ];
+                // Local fallback only — used if Firestore is briefly unreachable.
+                // No fake/placeholder names live here anymore.
+                this.leaderboardData = [];
 
                 this.rj45Slots = Array(8).fill(null);
                 this.targetStandard = "T568B";
@@ -1858,35 +1877,46 @@
             }
 
             async fetchLeaderboard() {
+                const container = document.getElementById("ghLeaderboard");
                 try {
-                    let res = await fetch(this.restApiUrl);
-                    if (res.ok) {
-                        let data = await res.json();
-                        this.renderLeaderboard(data);
-                        return;
-                    }
-                } catch (e) {}
-                this.renderLeaderboard(this.leaderboardData);
+                    const { db, collection, getDocs, query, orderBy, limit } = await waitForFirebase();
+                    const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+                    const snap = await getDocs(q);
+                    const data = snap.docs.map(d => d.data());
+                    this.leaderboardData = data;
+                    this.renderLeaderboard(data);
+                } catch (e) {
+                    console.error("Leaderboard load failed:", e);
+                    if (container) container.innerHTML = `<div style="color:#ff6b6b;">⚠️ Couldn't load the leaderboard right now.</div>`;
+                }
             }
 
             async submitScore() {
-                const payload = { name: this.playerHandle, score: this.score, status: "Verified" };
-                this.leaderboardData.push(payload);
-                
                 try {
-                    await fetch(this.restApiUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload)
+                    const { db, collection, addDoc, serverTimestamp } = await waitForFirebase();
+                    await addDoc(collection(db, "leaderboard"), {
+                        name: this.playerHandle,
+                        score: this.score,
+                        status: "Verified",
+                        createdAt: serverTimestamp()
                     });
-                } catch(e) {}
+                } catch (e) {
+                    console.error("Score submit failed:", e);
+                    alert("⚠️ Couldn't submit your score — please try again.");
+                    return;
+                }
                 this.fetchLeaderboard();
             }
 
             renderLeaderboard(data) {
                 const container = document.getElementById("ghLeaderboard");
                 if (!container) return;
-                
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<div style="color:var(--gh-text-muted);">No scores yet — be the first to submit one! 🏁</div>`;
+                    return;
+                }
+
                 let sorted = [...data].sort((a, b) => b.score - a.score).slice(0, 5);
                 container.innerHTML = sorted.map((p, i) => 
                     `<div style="padding: 4px 0; display:flex; justify-content:space-between; max-width:300px;">
