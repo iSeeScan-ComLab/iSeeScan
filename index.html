@@ -51,7 +51,7 @@ body {
   padding: 20px 0;
 }
 
-/* Welcome Logo Animation */
+/* ===== Welcome Logo Assembly Intro ===== */
 .welcome-logo {
   position: fixed;
   top: 0;
@@ -63,26 +63,147 @@ body {
   align-items: center;
   background: #060913;
   z-index: 999;
-  animation: fadeOut 2.5s forwards;
+  animation: introFadeOut 5.6s forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* faint radial backdrop glow that breathes in behind the assembly, then swells with the final zoom */
+.welcome-logo::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  max-width: 140vw;
+  max-height: 140vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,234,255,0.16) 0%, rgba(0,234,255,0) 70%);
+  opacity: 0;
+  transform-origin: center center;
+  animation: bgGlowIn 2s ease-out 0.1s forwards,
+             bgGlowExpand 1.4s cubic-bezier(.45,0,.55,1) 3.1s forwards;
+}
+
+.logo-assembly {
+  position: relative;
+  width: min(80%, 400px);
+  aspect-ratio: 1 / 1;
+}
+
+.logo-assembly .layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
   pointer-events: none;
 }
 
-.welcome-logo img {
-  max-width: 400px;
-  width: 80%;
-  height: auto;
-  animation: fadeIn 1.2s;
-  filter: drop-shadow(0 0 25px rgba(0, 234, 255, 0.6));
+.layer-ring {
+  animation: ringSpinIn 1s cubic-bezier(.22,.85,.28,1) 0.1s forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(.8); }
-  to { opacity: 1; transform: scale(1); }
+.layer-hex {
+  animation: hexFlicker 0.9s ease-in 0.75s forwards;
 }
 
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  75% { opacity: 1; }
+.layer-eye {
+  animation: eyePulseIn 0.7s cubic-bezier(.34,1.56,.64,1) 1.55s forwards;
+}
+
+.layer-text {
+  animation: textReveal 0.6s ease-out 2.15s forwards;
+}
+
+/* horizontal scan sweep that crosses the whole mark once during assembly */
+.scan-sweep {
+  position: absolute;
+  left: -4%;
+  width: 108%;
+  height: 3px;
+  top: -10%;
+  background: linear-gradient(90deg, transparent, #00eaff 20%, #fff 50%, #00eaff 80%, transparent);
+  box-shadow: 0 0 12px 2px rgba(0, 234, 255, 0.9);
+  opacity: 0;
+  animation: sweepDown 1.5s ease-in-out 0.85s forwards;
+}
+
+/* soft flash when the mark completes assembly */
+.assembly-flash {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(0,234,255,0.35) 40%, rgba(0,234,255,0) 72%);
+  opacity: 0;
+  animation: flashPulse 0.55s ease-out 2.55s forwards;
+}
+
+/* gentle idle glow once fully assembled, until the whole screen fades */
+.logo-assembly {
+  animation: assemblyZoomOut 1.4s cubic-bezier(.45,0,.55,1) 3.1s forwards;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes bgGlowIn {
+  to { opacity: 1; }
+}
+
+@keyframes ringSpinIn {
+  0%   { opacity: 0; transform: scale(0.3) rotate(-130deg); filter: drop-shadow(0 0 0px rgba(0,234,255,0)); }
+  60%  { opacity: 1; transform: scale(1.08) rotate(8deg); filter: drop-shadow(0 0 18px rgba(0,234,255,0.85)); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 10px rgba(0,234,255,0.55)); }
+}
+
+@keyframes hexFlicker {
+  0%   { opacity: 0; transform: scale(0.6); }
+  18%  { opacity: 0.85; transform: scale(0.85); }
+  30%  { opacity: 0.15; }
+  42%  { opacity: 0.9; transform: scale(0.97); }
+  55%  { opacity: 0.25; }
+  70%  { opacity: 1; transform: scale(1.04); filter: drop-shadow(0 0 14px rgba(0,234,255,0.6)); }
+  100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 10px rgba(0,234,255,0.45)); }
+}
+
+@keyframes eyePulseIn {
+  0%   { opacity: 0; transform: scale(0); }
+  55%  { opacity: 1; transform: scale(1.3); filter: drop-shadow(0 0 26px rgba(0,234,255,1)); }
+  75%  { transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 14px rgba(34,222,255,0.75)); }
+}
+
+@keyframes textReveal {
+  0%   { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateY(6px); }
+  100% { opacity: 1; clip-path: inset(0 0% 0 0); transform: translateY(0); }
+}
+
+@keyframes sweepDown {
+  0%   { top: -10%; opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { top: 106%; opacity: 0; }
+}
+
+@keyframes flashPulse {
+  0%   { opacity: 0; }
+  45%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes bgGlowExpand {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0.9; }
+}
+
+@keyframes assemblyZoomOut {
+  0%   { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(2.6); filter: brightness(1.3); }
+}
+
+@keyframes introFadeOut {
+  0%   { opacity: 1; }
+  77%  { opacity: 1; }
   100% { opacity: 0; visibility: hidden; }
 }
 
@@ -446,6 +567,7 @@ input::placeholder { color: #43536c; }
   body { padding: 15px; }
   .container { width: 100%; padding: 25px 20px; }
   .welcome-logo img { max-width: 260px; }
+  .logo-assembly { width: min(74%, 260px); }
   h1 { font-size: 30px; }
   .otp-input-box { font-size: 18px; letter-spacing: 6px; }
 }
@@ -455,8 +577,15 @@ input::placeholder { color: #43536c; }
 
 <img src="motherboard-background.png" class="background-img" alt="motherboard-background">
 
-<div class="welcome-logo">
-  <img src="logo.png" alt="iSeeScan logo">
+<div class="welcome-logo" role="img" aria-label="iSeeScan">
+  <div class="logo-assembly">
+    <img class="layer layer-ring" src="1000061254-removebg-preview.png" alt="" aria-hidden="true">
+    <img class="layer layer-hex" src="1000061255-removebg-preview.png" alt="" aria-hidden="true">
+    <img class="layer layer-eye" src="1000061257-removebg-preview.png" alt="" aria-hidden="true">
+    <img class="layer layer-text" src="1000061256-removebg-preview.png" alt="" aria-hidden="true">
+    <div class="scan-sweep"></div>
+    <div class="assembly-flash"></div>
+  </div>
 </div>
 
 <!-- OTP-Sent Notification Toast -->
